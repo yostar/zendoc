@@ -12,30 +12,65 @@ Everything required to build and package Zendoc for distribution. This document 
 
 ## 1. Installer Overview
 
-**Goal:** One install for non-technical users. Minimal manual config.
+**Goal:** Minimal friction. User installs Cursor + plugin. Everything else is handled by the plugin via clicks—no typing, no Command Palette, no manual config.
 
-**Delivery options (in order of ambition):**
-- **Option A:** Cursor plugin (marketplace) + "Create Zendoc" command
-- **Option B:** Standalone installer app that creates profile, installs extensions, creates workspace
-- **Option C:** Zen-Kit zip (template) with setup script
+**Primary delivery:** Cursor plugin (marketplace). The plugin handles workspace creation, extension installation, and GitHub setup via a guided flow.
 
----
-
-## 2. Zendoc Profile
-
-The installer must create a **Cursor profile** named "Zendoc" (or "Zendoc Profile").
-
-- **Purpose:** Isolates Zendoc extensions and settings from the user's other work.
-- **Scope:** All Zendoc extensions are installed only in this profile.
-- **Behavior:** When the user opens Cursor in Zendoc mode, they use this profile. GitDoc and other extensions run only here.
-
-**Implementation note:** Cursor/VS Code profiles are created via the UI. The installer may need to guide the user through profile creation or use a script/API if available.
+**Profile:** Default profile is fine. New users get the default profile when they install Cursor. No need to create a separate Zendoc profile.
 
 ---
 
-## 3. Required Extensions
+## 2. Homepage & User Flow
 
-These extensions **must** be installed in the Zendoc profile:
+**Homepage shows only:**
+1. [Download Cursor]
+2. [Install Zendoc] (link opens Cursor marketplace to plugin page)
+
+**That's it.** A welcome message appears in Cursor—user clicks **Create workspace** to begin.
+
+**Full flow (clicks only):**
+
+| Step | User action |
+|------|-------------|
+| 1 | Click "Download Cursor" on website |
+| 2 | Install Cursor |
+| 3 | Click "Install Zendoc" on website → Cursor opens to plugin page |
+| 4 | Click "Install" in Cursor |
+| 5 | Click "Create workspace" in plugin's welcome prompt |
+| 6 | (Optional) Click "Set up cloud backup" in Welcome.md |
+
+No typing. No Command Palette. No Chat commands required.
+
+See `homepage.md` for full website copy.
+
+---
+
+## 3. Plugin Requirements
+
+The Zendoc plugin must implement:
+
+**Commands:**
+- `zendoc.createWorkspace` — Creates workspace folder, copies template, opens it
+- `zendoc.setupBackup` — Runs GitHub setup wizard (gh auth, gh repo create)
+
+**Activation behavior:** On first run after install, show a prominent "Create your workspace" prompt (notification, panel, or modal). User clicks → command runs.
+
+**Command links in Markdown:** Welcome.md uses `command:` links so users can click instead of type:
+```markdown
+[Set up cloud backup](command:zendoc.setupBackup)
+```
+
+**GitHub setup wizard (inside plugin):** When user clicks "Set up cloud backup":
+1. Check if `gh` is installed. If not, prompt with install instruction.
+2. Run `gh auth login` → browser opens → user signs in.
+3. Run `gh repo create [name] --private --source=. --push`.
+4. Confirm: "Your work is now backed up."
+
+---
+
+## 4. Required Extensions
+
+These extensions **must** be installed (plugin installs them when creating workspace):
 
 | Extension | Publisher | Extension ID | Purpose |
 |-----------|------------|--------------|---------|
@@ -56,7 +91,7 @@ These extensions **must** be installed in the Zendoc profile:
 
 ---
 
-## 4. GitHub via Command Line
+## 5. GitHub via Command Line
 
 All GitHub operations use the command line:
 
@@ -73,7 +108,7 @@ All GitHub operations use the command line:
 
 ---
 
-## 5. Workspace Template Structure
+## 6. Workspace Template Structure
 
 The installer creates a workspace with this structure:
 
@@ -108,7 +143,7 @@ zendoc/
 
 ---
 
-## 6. Configuration Files
+## 7. Configuration Files
 
 ### `.vscode/settings.json`
 
@@ -147,7 +182,7 @@ zendoc/
 
 ---
 
-## 7. Cursor Rules
+## 8. Cursor Rules
 
 Include these rules in `.vscode/.cursor/rules/`:
 
@@ -159,7 +194,7 @@ Include these rules in `.vscode/.cursor/rules/`:
 
 ---
 
-## 8. AGENTS.md Structure
+## 9. AGENTS.md Structure
 
 - **Root `AGENTS.md`:** Workspace-level instructions. Tells agent to read project AGENTS.md when in a project folder.
 - **`projects/zendoc/AGENTS.md`:** Zendoc prototype context (for development). Has "Your Instructions" section for user content.
@@ -167,7 +202,7 @@ Include these rules in `.vscode/.cursor/rules/`:
 
 ---
 
-## 9. Core Documents to Include
+## 10. Core Documents to Include
 
 | File | Purpose |
 |------|---------|
@@ -177,10 +212,11 @@ Include these rules in `.vscode/.cursor/rules/`:
 | `projects/zendoc/business_model.md` | Business model |
 | `projects/zendoc/history.md` | Technical spec, troubleshooting |
 | `projects/zendoc/packaging.md` | This file |
+| `projects/zendoc/homepage.md` | Website copy and homepage instructions |
 
 ---
 
-## 10. GitHub Setup Flow
+## 11. GitHub Setup Flow
 
 When user runs "Set up cloud backup" or equivalent:
 
@@ -192,7 +228,7 @@ When user runs "Set up cloud backup" or equivalent:
 
 ---
 
-## 11. Clean-Room Audit
+## 12. Clean-Room Audit
 
 Before packaging, strip all personal paths and machine-specific config:
 
@@ -203,7 +239,7 @@ Before packaging, strip all personal paths and machine-specific config:
 
 ---
 
-## 12. Known Issues & Caveats
+## 13. Known Issues & Caveats
 
 | Issue | Mitigation |
 |-------|------------|
@@ -213,10 +249,11 @@ Before packaging, strip all personal paths and machine-specific config:
 
 ---
 
-## 13. Checklist for Packaging
+## 14. Checklist for Packaging
 
-- [ ] Create Zendoc profile
-- [ ] Install GitDoc, Markdown All in One, Markdown for Humans
+- [ ] Plugin implements `zendoc.createWorkspace` and `zendoc.setupBackup` commands
+- [ ] Plugin shows "Create workspace" prompt on first activation
+- [ ] Install GitDoc, Markdown All in One, Markdown for Humans (when workspace created)
 - [ ] Create workspace folder structure
 - [ ] Copy all config files (settings, extensions, rules)
 - [ ] Copy core documents (Welcome, vision, roadmap, etc.)
