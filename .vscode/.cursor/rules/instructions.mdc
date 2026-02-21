@@ -1,0 +1,16 @@
+---
+description: Handle add/edit/show instructions commands for AGENTS.md
+alwaysApply: true
+---
+
+# Instructions Commands
+
+When the user uses these phrases, update or display the appropriate AGENTS.md file:
+
+- **Add instruction: [text]** — Append the text to the target AGENTS.md. Use a newline and bullet (e.g., `- [text]`) when appending.
+- **Edit instructions: [text]** — Replace the user-editable content of the target AGENTS.md with the new text. For files with a "## Your Instructions" section (e.g., projects/zendoc/AGENTS.md), replace only that section. For other files, replace the entire file.
+- **Show instructions** — Display the current content of the target AGENTS.md.
+
+**Target file:** If the user is working in a project folder (e.g., `projects/coach/`, `projects/zendoc/`), use that project's AGENTS.md. Otherwise use the root AGENTS.md.
+
+After executing, confirm briefly (e.g., "Added." or "Updated.").
