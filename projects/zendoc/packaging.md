@@ -12,7 +12,7 @@ Everything required to build and package Zendoc for distribution. This document 
 
 ## 1. Installer Overview
 
-**Goal:** One install for non-technical users. No GitHub Desktop. No manual config.
+**Goal:** One install for non-technical users. Minimal manual config.
 
 **Delivery options (in order of ambition):**
 - **Option A:** Cursor plugin (marketplace) + "Create Zendoc" command
@@ -39,7 +39,7 @@ These extensions **must** be installed in the Zendoc profile:
 
 | Extension | Publisher | Extension ID | Purpose |
 |-----------|------------|--------------|---------|
-| **GitDoc** | vsls-contrib | `vsls-contrib.gitdoc` | Auto-commit and auto-push on save. Replaces manual GitHub Desktop. |
+| **GitDoc** | vsls-contrib | `vsls-contrib.gitdoc` | Auto-commit and auto-push on save. |
 | **Markdown All in One** | yzhang | `yzhang.markdown-all-in-one` | Keyboard shortcuts, table of contents, Markdown features. |
 | **Markdown for Humans** | concretio | `concretio.markdown-for-humans` | WYSIWYG Markdown editor. Use via "Open With..." — do not set as default (see Known Issues). |
 
@@ -56,9 +56,9 @@ These extensions **must** be installed in the Zendoc profile:
 
 ---
 
-## 4. No GitHub Desktop
+## 4. GitHub via Command Line
 
-**GitHub Desktop is not required.** All GitHub operations use the command line:
+All GitHub operations use the command line:
 
 - **Repo creation:** `gh repo create zendoc --private --source=. --push`
 - **Authentication:** `gh auth login` (opens browser, one-time)
@@ -180,7 +180,7 @@ Include these rules in `.vscode/.cursor/rules/`:
 
 ---
 
-## 10. GitHub Setup Flow (No Desktop)
+## 10. GitHub Setup Flow
 
 When user runs "Set up cloud backup" or equivalent:
 
