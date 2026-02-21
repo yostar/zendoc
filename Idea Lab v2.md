@@ -19,3 +19,7 @@ ok i just made changes... did they save?
 - first i do stuff
 - next i do other stuff
 - save this bitch
+
+What else do i want to write or do?
+
+I dunno... 
