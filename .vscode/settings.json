@@ -26,5 +26,6 @@
   "workbench.layoutControl.enabled": false,
   "explorer.compactFolders": false,
   "editor.renderWhitespace": "none",
-  "editor.guides.bracketPairs": false
+  "editor.guides.bracketPairs": false,
+  "workbench.statusBar.visible": false
 }
