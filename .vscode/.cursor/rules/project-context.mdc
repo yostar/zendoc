@@ -1,0 +1,9 @@
+---
+description: Load project-specific AGENTS.md when working in a project folder
+globs: "projects/*/**"
+alwaysApply: false
+---
+
+# Project Context
+
+When the user is working with files inside a project folder (e.g., `projects/coach/`, `projects/zendoc/`), always read that project's AGENTS.md file for project-specific instructions before responding.
