@@ -1,0 +1,23 @@
+{
+  "workbench.activityBar.location": "hidden",
+  "editor.minimap.enabled": false,
+  "editor.fontSize": 17,
+  "editor.lineHeight": 1.7,
+  "editor.wordWrap": "on",
+  "editor.lineNumbers": "off",
+  "editor.glyphMargin": false,
+  "editor.folding": false,
+  "editor.occurrencesHighlight": "off",
+  "editor.selectionHighlight": false,
+  "editor.renderLineHighlight": "none",
+  "editor.guides.indentation": false,
+  "editor.cursorStyle": "line-thin",
+  "workbench.layoutControl.enabled": false,
+  "explorer.compactFolders": false,
+  "gitdoc.enabled": true,
+  "gitdoc.autoCommitOnSave": true,
+  "markdown-preview-enhanced.previewTheme": "github-light", // Or your preferred clean theme
+  "editor.renderWhitespace": "none",
+  "editor.guides.bracketPairs": false,
+   "workbench.sideBar.location": "right",
+}
