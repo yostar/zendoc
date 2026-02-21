@@ -15,7 +15,6 @@ You are currently inside a professional-grade writing engine that has been "tame
 ## 🛠 Quick Start
 
 - **Create a New Note:** Right-click the `projects` folder in the left sidebar and select **New File**. Name it something like `Idea.md`.   
-
 - **The "Zen" Chat:** That's how you talk to me: bottom of the sidebar is on the **right**. I can do just about anything.
   - You can ask me to "create a new project" or "create a new file inside project x" — I'll take care of it.
   - **Instructions:** Tell me things to remember. Use "add instruction: xyz" to add, "edit instructions: xyz" to replace, or "show instructions" to see what's saved.
@@ -23,11 +22,11 @@ You are currently inside a professional-grade writing engine that has been "tame
 ## ⌨️ Helpful Shortcuts
 
 
-| Action                | Shortcut          |
-| --------------------- | ----------------- |
-| **Hide/Show Sidebar** | `Cmd + B`         |
-| **Search Everything** | `Cmd + P`         |
-| **Open Command Menu** | `Cmd + Shift + P` |
+| Action                 | Shortcut          |
+| ---------------------- | ----------------- |
+| **Hide/Show Sidebar**  | `Cmd + B`         |
+| **Search Everything**  | `Cmd + P`         |
+| **Open Command Menu**  | `Cmd + Shift + P` |
 | **Show/Hide Dotfiles** | `Cmd + Shift + A` |
 
 
