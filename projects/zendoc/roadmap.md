@@ -21,15 +21,10 @@ Non-technical users shouldn't have to touch a terminal or a JSON file. **Clicks 
 - **Command links:** Welcome.md uses `command:` links (e.g., `[Set up cloud backup](command:zendoc.setupBackup)`) so users click instead of type.
 - **GitHub in setup:** GitHub connection is part of the create-workspace flow, not optional. Wizard runs `gh auth login` and `gh repo create` before opening the workspace.
 
-## Phase 3: The Distribution Layer
+## Phase 3
 
-How the "Package" reaches the world.
+*To be defined.*
 
-- **The Zendoc Installer:** A simple landing page where users can download the "Zen-Kit" (the zip of the template).
-- **The "Pro" Preset:** A pre-configured `settings.json` toggle for different writing styles (e.g., "Scriptwriter Mode," "Academic Mode," "Journalist Mode").
-- **Automated Updates:** A mechanism to push "Workspace Updates" (like the new history file logic we created) to existing users without breaking their custom files.
+## Phase 4
 
-## Phase 4: Beyond the Desktop
-
-- **Mobile Sync Bridge:** Documentation on how to use "Working Copy" (iOS) or "GitJournal" (Android) to edit these same Markdown files on the go while maintaining the GitHub sync.
-- **The "Export" Engine:** A one-click "Publish" button that converts the minimalist Markdown into a beautifully formatted PDF or a clean HTML blog post.
+*To be defined.*
