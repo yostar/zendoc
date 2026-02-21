@@ -17,9 +17,9 @@ The goal is to turn our manual `settings.json` and folder structure into a repea
 Non-technical users shouldn't have to touch a terminal or a JSON file. **Clicks only—no typing.**
 
 - **Homepage:** Two steps only—Download Cursor, Install Zendoc. See `homepage.md` for copy.
-- **Plugin-first:** The Zendoc plugin handles everything. On first activation, show "Create workspace" prompt. User clicks → workspace created.
-- **Command links:** Welcome.md uses `command:` links (e.g., `[Set up cloud backup](command:zendoc.setupBackup)`) so users click instead of type.
-- **GitHub in setup:** GitHub connection is part of the create-workspace flow, not optional. Wizard runs `gh auth login` and `gh repo create` before opening the workspace.
+- **Extension-first:** Build a VS Code extension (works in Cursor). Native UI: folder picker, input boxes, notifications. No chat required.
+- **Setup wizard:** On first activation, show "Create workspace" notification. User clicks → wizard runs with native dialogs. Creates workspace, runs `gh auth` + `gh repo create`, installs extensions via `cursor --install-extension`, opens workspace.
+- **Command links:** Welcome.md uses `command:` links (e.g., `[Set up cloud backup](command:zendoc.setupBackup)`) for retry if GitHub setup was skipped.
 
 ## Phase 3
 

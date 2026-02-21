@@ -6,7 +6,7 @@ status: draft
 
 # Homepage & Website Copy
 
-The website should hide complexity. Users see only two steps. Everything else is handled by the plugin.
+The website should hide complexity. Users see only two steps. Everything else is handled by the Zendoc extension.
 
 ---
 
@@ -17,9 +17,9 @@ The website should hide complexity. Users see only two steps. Everything else is
 **Steps:**
 
 1. **[Download Cursor](https://cursor.com)** — The app Zendoc runs inside.
-2. **[Install Zendoc](https://cursor.com/marketplace)** — Opens Cursor to the plugin page. Click Install.
+2. **[Install Zendoc](https://marketplace.visualstudio.com/items?itemName=zendoc.zendoc)** — Opens Cursor to the extension page. Click Install.
 
-**Subtext:** A welcome message will appear—click **Create workspace**. The setup wizard creates your workspace and connects it to GitHub. Your work backs up automatically.
+**Subtext:** A notification will appear—click **Create workspace**. The wizard uses native dialogs (folder picker, etc.) to create your workspace and connect it to GitHub. Your work backs up automatically.
 
 ---
 
@@ -29,10 +29,10 @@ The website should hide complexity. Users see only two steps. Everything else is
 |------|-------------|
 | 1 | Click "Download Cursor" on website |
 | 2 | Install Cursor |
-| 3 | Click "Install Zendoc" on website → Cursor opens to plugin page |
+| 3 | Click "Install Zendoc" on website → Cursor opens to extension page |
 | 4 | Click "Install" in Cursor |
-| 5 | Click "Create workspace" in plugin's welcome prompt |
-| 6 | Setup wizard runs: creates workspace → prompts to sign in to GitHub (browser) → connects repo → done |
+| 5 | Click "Create workspace" in extension's notification |
+| 6 | Wizard runs: folder picker → creates workspace → GitHub sign-in (browser) → connects repo → installs extensions → opens workspace |
 
 GitHub connection is part of the setup. No separate step.
 
@@ -40,9 +40,9 @@ GitHub connection is part of the setup. No separate step.
 
 ## Design Principles
 
-- **Homepage:** Only Cursor + plugin. Nothing else.
+- **Homepage:** Only Cursor + extension. Nothing else.
 - **Profile:** Default profile is fine. New users don't need to create one.
-- **Plugin:** Handles workspace creation, GitHub connection, and first-run guidance in one flow.
+- **Extension:** VS Code extension with native UI. Handles workspace creation, GitHub connection, extension installation in one wizard flow.
 - **GitHub is core:** Connecting to GitHub is part of the setup wizard, not optional. It's the value prop—your work backs up automatically.
 - **Clicks only:** No typing, no Command Palette, no Chat commands required for core flow.
 
@@ -50,7 +50,7 @@ GitHub connection is part of the setup. No separate step.
 
 ## Deep Links (If Supported)
 
-- **Install plugin:** `cursor://marketplace/install?publisher=zendoc&extension=zendoc` (verify Cursor's URL scheme)
+- **Install extension:** `vscode://marketplace.visualstudio.com/items?itemName=zendoc.zendoc` (opens in VS Code/Cursor)
 - **Open Cursor:** `cursor://` (may open Cursor or prompt to install)
 
 ---

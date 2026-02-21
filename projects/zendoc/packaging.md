@@ -12,9 +12,9 @@ Everything required to build and package Zendoc for distribution. This document 
 
 ## 1. Installer Overview
 
-**Goal:** Minimal friction. User installs Cursor + plugin. Everything else is handled by the plugin via clicks—no typing, no Command Palette, no manual config.
+**Goal:** Minimal friction. User installs Cursor + Zendoc extension. Everything else is handled by the extension via native UI—folder picker, input boxes, no typing required.
 
-**Primary delivery:** Cursor plugin (marketplace). The plugin handles workspace creation, extension installation, and GitHub setup via a guided flow.
+**Primary delivery:** VS Code extension (works in Cursor). The extension handles workspace creation, extension installation, and GitHub setup via a guided wizard with native dialogs.
 
 **Profile:** Default profile is fine. New users get the default profile when they install Cursor. No need to create a separate Zendoc profile.
 
@@ -24,9 +24,9 @@ Everything required to build and package Zendoc for distribution. This document 
 
 **Homepage shows only:**
 1. [Download Cursor]
-2. [Install Zendoc] (link opens Cursor marketplace to plugin page)
+2. [Install Zendoc] (link opens extension marketplace)
 
-**That's it.** A welcome message appears in Cursor—user clicks **Create workspace** to begin.
+**That's it.** A notification appears—user clicks **Create workspace** to begin.
 
 **Full flow (clicks only):**
 
@@ -34,10 +34,10 @@ Everything required to build and package Zendoc for distribution. This document 
 |------|-------------|
 | 1 | Click "Download Cursor" on website |
 | 2 | Install Cursor |
-| 3 | Click "Install Zendoc" on website → Cursor opens to plugin page |
+| 3 | Click "Install Zendoc" on website → Cursor opens to extension page |
 | 4 | Click "Install" in Cursor |
-| 5 | Click "Create workspace" in plugin's welcome prompt |
-| 6 | Plugin runs setup wizard: creates workspace → connects to GitHub (gh auth, gh repo create) → done |
+| 5 | Click "Create workspace" in extension's notification |
+| 6 | Extension runs wizard: folder picker → creates workspace → runs gh auth (browser) → gh repo create → installs extensions via CLI → opens workspace |
 
 GitHub setup is **part of the setup flow**, not optional. It's critical to the value prop: your work is backed up automatically.
 
@@ -45,31 +45,36 @@ See `homepage.md` for full website copy.
 
 ---
 
-## 3. Plugin Requirements
+## 3. Extension Requirements (VS Code Extension)
 
-The Zendoc plugin must implement:
+The Zendoc extension is a **VS Code extension** (works in Cursor). It uses native VS Code APIs for UI.
 
 **Commands:**
-- `zendoc.createWorkspace` — Runs the full setup wizard: creates workspace, connects to GitHub, opens workspace. This is the single entry point.
+- `zendoc.createWorkspace` — Runs the full setup wizard. Single entry point.
+- `zendoc.setupBackup` — Retry GitHub setup if user skipped or it failed.
 
-**Activation behavior:** On first run after install, show a prominent "Create your workspace" prompt (notification, panel, or modal). User clicks → setup wizard runs.
+**Activation:** On first run after install, show a notification: "Create your Zendoc workspace" with a button. User clicks → wizard runs.
 
-**Setup wizard flow (single flow):**
-1. Create workspace folder, copy template, initialize Git.
-2. **Connect to GitHub** (integrated, not optional):
-   - Check if `gh` is installed. If not, prompt with install instruction (or offer to run `brew install gh`).
-   - Run `gh auth login` → browser opens → user signs in to GitHub.
-   - Run `gh repo create [name] --private --source=. --push`.
-3. Open workspace. Show Welcome.md.
-4. Confirm: "Your workspace is ready. Your work backs up to GitHub automatically."
+**Native UI (VS Code API):**
+- `window.showOpenDialog()` — Folder picker for workspace location
+- `window.showInputBox()` — Repo name, or other inputs if needed
+- `window.showInformationMessage()` — Status updates, notifications
+- `vscode.workspace.fs` — Create folders, write files
+- `child_process.exec()` — Run `gh auth login`, `gh repo create`, `cursor --install-extension`
 
-**Fallback:** If user skips or GitHub setup fails, offer `zendoc.setupBackup` command for retry. Welcome.md can link to it.
+**Setup wizard flow:**
+1. Show folder picker → user selects location (e.g., ~/Documents).
+2. Create workspace folder, copy template, run `git init`.
+3. **Connect to GitHub:** Check if `gh` installed. If not, show install instruction. Run `gh auth login` → browser opens. Run `gh repo create [name] --private --source=. --push`.
+4. Run `cursor --install-extension` (or `code --install-extension`) for GitDoc, Markdown All in One, Markdown for Humans.
+5. Open workspace via `vscode.commands.executeCommand('vscode.openFolder', uri)`.
+6. Show Welcome.md. Confirm: "Your workspace is ready."
 
 ---
 
 ## 4. Required Extensions
 
-These extensions **must** be installed (plugin installs them when creating workspace):
+These extensions **must** be installed (Zendoc extension runs `cursor --install-extension` for each when creating workspace):
 
 | Extension | Publisher | Extension ID | Purpose |
 |-----------|------------|--------------|---------|
@@ -139,6 +144,8 @@ zendoc/
 ```
 
 **Starter project:** Include a minimal starter (e.g., `projects/starter/` or `projects/coach/`) so the user has a place to begin.
+
+**Template bundling:** The workspace template is bundled inside the extension. The extension copies it to the user's chosen location.
 
 ---
 
@@ -228,7 +235,14 @@ GitHub setup runs as part of `zendoc.createWorkspace`, not as a separate step:
 
 ---
 
-## 12. Clean-Room Audit
+## 12. Extension Publishing
+
+- **Marketplace:** Publish to VS Code Marketplace. Cursor uses the same marketplace, so the extension will appear in Cursor's Extensions panel.
+- **Extension ID:** `zendoc.zendoc` (or `publisher.extension` once publisher is registered).
+
+---
+
+## 13. Clean-Room Audit
 
 Before packaging, strip all personal paths and machine-specific config:
 
@@ -239,7 +253,7 @@ Before packaging, strip all personal paths and machine-specific config:
 
 ---
 
-## 13. Known Issues & Caveats
+## 14. Known Issues & Caveats
 
 | Issue | Mitigation |
 |-------|------------|
@@ -249,10 +263,11 @@ Before packaging, strip all personal paths and machine-specific config:
 
 ---
 
-## 14. Checklist for Packaging
+## 15. Checklist for Packaging
 
-- [ ] Plugin implements `zendoc.createWorkspace` (includes GitHub setup) and `zendoc.setupBackup` (retry/skip flow)
-- [ ] Plugin shows "Create workspace" prompt on first activation
+- [ ] Extension implements `zendoc.createWorkspace` and `zendoc.setupBackup` commands
+- [ ] Extension shows "Create workspace" notification on first activation
+- [ ] Extension uses native UI (folder picker, input box) and runs shell commands (gh, cursor --install-extension)
 - [ ] Install GitDoc, Markdown All in One, Markdown for Humans (when workspace created)
 - [ ] Create workspace folder structure
 - [ ] Copy all config files (settings, extensions, rules)
