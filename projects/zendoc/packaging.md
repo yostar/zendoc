@@ -65,7 +65,7 @@ The Zendoc extension is a **VS Code extension** (works in Cursor). It uses nativ
 **Setup wizard flow:**
 1. Show folder picker → user selects location (e.g., ~/Documents).
 2. Create workspace folder, copy template, run `git init`.
-3. **Connect to GitHub:** Check if `gh` installed. If not, show install instruction. Run `gh auth login` → browser opens. Run `gh repo create [name] --private --source=. --push`.
+3. **Connect to GitHub:** Show message: "Don't have a GitHub account? You can create one when the browser opens—it's all in one flow." Then check if `gh` installed. If not, show install instruction. Run `gh auth login` → browser opens. Run `gh repo create [name] --private --source=. --push`.
 4. Run `cursor --install-extension` (or `code --install-extension`) for GitDoc, Markdown All in One, Markdown for Humans.
 5. Open workspace via `vscode.commands.executeCommand('vscode.openFolder', uri)`.
 6. Show Welcome.md. Confirm: "Your workspace is ready."
@@ -227,11 +227,12 @@ Include these rules in `.vscode/.cursor/rules/`:
 GitHub setup runs as part of `zendoc.createWorkspace`, not as a separate step:
 
 1. After creating workspace folder and copying template, run `git init`.
-2. Check if `gh` is installed. If not: prompt user to run `brew install gh` or provide install link.
-3. Run `gh auth login` — opens browser for one-time sign-in.
-4. Run `gh repo create [name] --private --source=. --push`.
-5. If successful: "Your work backs up to GitHub automatically."
-6. If user skips or fails: workspace still works locally. Offer `zendoc.setupBackup` for retry later.
+2. Before Connect GitHub: Show brief message that users without a GitHub account can create one in the same flow (no separate step).
+3. Check if `gh` is installed. If not: prompt user to run `brew install gh` or provide install link.
+4. Run `gh auth login` — opens browser for one-time sign-in.
+5. Run `gh repo create [name] --private --source=. --push`.
+6. If successful: "Your work backs up to GitHub automatically."
+7. If user skips or fails: workspace still works locally. Offer `zendoc.setupBackup` for retry later.
 
 ---
 
