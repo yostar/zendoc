@@ -156,6 +156,8 @@ zendoc/
 | Setting | Value | Purpose |
 |---------|-------|---------|
 | `files.exclude` | `{"**/.*": true, "**/.*/**": true}` | Hide dotfiles |
+| `explorer.confirmDelete` | `true` | Confirm before delete (reduces accidental deletion) |
+| `files.enableTrash` | `true` | Send deleted files to trash, not permanent delete |
 | `files.autoSave` | `afterDelay` | Auto-save |
 | `files.autoSaveDelay` | `1000` | 1 second |
 | `workbench.colorTheme` | `Cursor Light` | Theme |

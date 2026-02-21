@@ -4,6 +4,8 @@
     "**/.*/**": true,
     "**/AGENTS.md": true
   },
+  "explorer.confirmDelete": true,
+  "files.enableTrash": true,
   "files.autoSave": "afterDelay",
   "files.autoSaveDelay": 1000,
   "workbench.colorTheme": "Cursor Light",
