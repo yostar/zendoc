@@ -11,7 +11,7 @@ During the initial build, we faced a "Technical Fragility" phase. Attempts to fo
 The vision evolved from an aesthetic pursuit into a structural one. We moved away from "fragile hacks" toward a robust, "Atomic" foundation:
 
 - **Stability First:** We abandoned experimental renderers in favor of the standard text editor to ensure the app never crashes.
-- **Invisible Labor:** We automated the save-and-sync process using `afterDelay` saving and GitHub Desktop. The mental burden of "managing files" was replaced by a background "time machine".
+- **Invisible Labor:** We automated the save-and-sync process using `afterDelay` saving and automatic publish to GitHub. The mental burden of "managing files" was replaced by a background "time machine".
 - **The Focused Canvas:** By moving the sidebar to the right and hiding the activity bar, we neutralized the "IDE feel," creating a centered, distraction-free writing space.
 
 ## 3. The "Why": The Uncanny Valley of Productivity
@@ -31,3 +31,7 @@ Zendoc exists because there is a "Missing Middle" in the current market for powe
 - **Zero-Latency Thought:** A "zero-lag" experience where the software moves at the speed of the brain, not the speed of a cloud sync.
 - **Standardized Freedom:** No proprietary formats. You own your raw Markdown files. If Zendoc disappears, your data remains as plain text on your drive.
 - **The "Notebook" Vibe:** A professional engine successfully "tamed" to feel like a high-end physical notebook.
+
+## 5. Open Source & Community First
+
+Zendoc will be open source. The strategy is to build a strong community before monetization—as long as there are no ongoing costs, which there should not be. The core product is free; revenue comes later from optional upgrades (AI usage, premium plugins).

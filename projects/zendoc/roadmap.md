@@ -20,7 +20,7 @@ Non-technical users shouldn't have to touch a terminal or a JSON file.
   1. Checks for Cursor/VS Code.
   2. Clones the user's new private "Notebook" repo.
   3. Injects the Zendoc settings.
-- **The Guided Tour:** Use a "[Welcome.md](http://Welcome.md)" file that opens automatically on the first launch. It should use the `@` reference system to teach the user how to navigate their new sidebar and toggle the Zen mode.
+- **The Guided Tour:** Use a "[Welcome.md](Welcome.md)" file that opens automatically on the first launch. It should use the `@` reference system to teach the user how to navigate their new sidebar and toggle the Zen mode.
 - **Git for Laypeople:** Create a visual guide (or a custom Cursor rule) that explains GitHub Desktop as a "Save-to-Cloud Button" rather than a complex version control system.
 
 ## Phase 3: The Distribution Layer

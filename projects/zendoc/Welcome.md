@@ -8,7 +8,7 @@ You are currently inside a professional-grade writing engine that has been "tame
 
 ## 🚀 Three Things to Know
 
-1. **Your Work is Immortal:** Every word you type is auto-saved every second. Through the GitHub Desktop app, your entire history is backed up to a private "Time Machine." You can never lose a file again.
+1. **Your Work is Immortal:** Every word you type is auto-saved every second. Your work automatically publishes to GitHub—your entire history is backed up to a private "Time Machine." You can never lose a file again.
 2. **Standardized Freedom:** You are writing in **Markdown** (`.md`). These are simple text files that you own. You can open them in any app on any device, forever. No "walled gardens" here.
 3. **Zen Mode is One Tap Away:** Press `Cmd + B` to make the sidebar vanish. This is your "Deep Work" toggle.
 

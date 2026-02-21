@@ -5,7 +5,7 @@
 - **Theme:** Cursor Light (High Contrast).
 - **Layout:** Sidebar on the **Right**, Activity Bar **Hidden**.
 - **Auto-Save:** Enabled via `afterDelay` (1000ms) to ensure instant disk writing.
-- **Sync:** Local folder linked to GitHub via **GitHub Desktop** (Repo: `zendoc`).
+- **Sync:** Work automatically publishes to GitHub (Repo: `zendoc`).
 
 ## Troubleshooting Log
 
