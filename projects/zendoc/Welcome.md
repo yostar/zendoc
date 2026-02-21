@@ -16,7 +16,6 @@ You are currently inside a professional-grade writing engine that has been "tame
 
 - **Create a New Note:** Right-click the `projects` folder in the sidebar and select **New File**. Name it something like `Idea.md`.
 - **The "Zen" Sidebar:** Your sidebar is on the **right**. This keeps your text centered and prevents your eyes from jumping to the left every time you start a new line.
-- **Syncing:** When you're done for the day, just switch to **GitHub Desktop**, write a quick note like "Morning thoughts," and hit **Push**.
 
 ## ⌨️ Helpful Shortcuts
 
