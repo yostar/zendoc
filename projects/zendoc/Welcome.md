@@ -22,12 +22,11 @@ You are currently inside a professional-grade writing engine that has been "tame
 ## ⌨️ Helpful Shortcuts
 
 
-| Action                 | Shortcut          |
-| ---------------------- | ----------------- |
-| **Hide/Show Sidebar**  | `Cmd + B`         |
-| **Search Everything**  | `Cmd + P`         |
-| **Open Command Menu**  | `Cmd + Shift + P` |
-| **Show/Hide Dotfiles** | `Cmd + Shift + A` |
+| Action                | Shortcut          |
+| --------------------- | ----------------- |
+| **Hide/Show Sidebar** | `Cmd + B`         |
+| **Search Everything** | `Cmd + P`         |
+| **Open Command Menu** | `Cmd + Shift + P` |
 
 
 ---
