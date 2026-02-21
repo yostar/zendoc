@@ -19,7 +19,7 @@ Non-technical users shouldn't have to touch a terminal or a JSON file. **Clicks 
 - **Homepage:** Two steps only—Download Cursor, Install Zendoc. See `homepage.md` for copy.
 - **Plugin-first:** The Zendoc plugin handles everything. On first activation, show "Create workspace" prompt. User clicks → workspace created.
 - **Command links:** Welcome.md uses `command:` links (e.g., `[Set up cloud backup](command:zendoc.setupBackup)`) so users click instead of type.
-- **GitHub wizard:** Plugin runs `gh auth login` and `gh repo create` when user clicks "Set up cloud backup." No GitHub Desktop.
+- **GitHub in setup:** GitHub connection is part of the create-workspace flow, not optional. Wizard runs `gh auth login` and `gh repo create` before opening the workspace.
 
 ## Phase 3: The Distribution Layer
 

@@ -19,7 +19,7 @@ The website should hide complexity. Users see only two steps. Everything else is
 1. **[Download Cursor](https://cursor.com)** — The app Zendoc runs inside.
 2. **[Install Zendoc](https://cursor.com/marketplace)** — Opens Cursor to the plugin page. Click Install.
 
-**Subtext:** A welcome message will appear—click **Create workspace** to begin.
+**Subtext:** A welcome message will appear—click **Create workspace**. The setup wizard creates your workspace and connects it to GitHub. Your work backs up automatically.
 
 ---
 
@@ -32,7 +32,9 @@ The website should hide complexity. Users see only two steps. Everything else is
 | 3 | Click "Install Zendoc" on website → Cursor opens to plugin page |
 | 4 | Click "Install" in Cursor |
 | 5 | Click "Create workspace" in plugin's welcome prompt |
-| 6 | (Optional) Click "Set up cloud backup" in Welcome.md |
+| 6 | Setup wizard runs: creates workspace → prompts to sign in to GitHub (browser) → connects repo → done |
+
+GitHub connection is part of the setup. No separate step.
 
 ---
 
@@ -40,7 +42,8 @@ The website should hide complexity. Users see only two steps. Everything else is
 
 - **Homepage:** Only Cursor + plugin. Nothing else.
 - **Profile:** Default profile is fine. New users don't need to create one.
-- **Plugin:** Handles workspace creation, GitHub setup, and first-run guidance.
+- **Plugin:** Handles workspace creation, GitHub connection, and first-run guidance in one flow.
+- **GitHub is core:** Connecting to GitHub is part of the setup wizard, not optional. It's the value prop—your work backs up automatically.
 - **Clicks only:** No typing, no Command Palette, no Chat commands required for core flow.
 
 ---

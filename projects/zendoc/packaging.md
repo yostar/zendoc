@@ -37,9 +37,9 @@ Everything required to build and package Zendoc for distribution. This document 
 | 3 | Click "Install Zendoc" on website → Cursor opens to plugin page |
 | 4 | Click "Install" in Cursor |
 | 5 | Click "Create workspace" in plugin's welcome prompt |
-| 6 | (Optional) Click "Set up cloud backup" in Welcome.md |
+| 6 | Plugin runs setup wizard: creates workspace → connects to GitHub (gh auth, gh repo create) → done |
 
-No typing. No Command Palette. No Chat commands required.
+GitHub setup is **part of the setup flow**, not optional. It's critical to the value prop: your work is backed up automatically.
 
 See `homepage.md` for full website copy.
 
@@ -50,21 +50,20 @@ See `homepage.md` for full website copy.
 The Zendoc plugin must implement:
 
 **Commands:**
-- `zendoc.createWorkspace` — Creates workspace folder, copies template, opens it
-- `zendoc.setupBackup` — Runs GitHub setup wizard (gh auth, gh repo create)
+- `zendoc.createWorkspace` — Runs the full setup wizard: creates workspace, connects to GitHub, opens workspace. This is the single entry point.
 
-**Activation behavior:** On first run after install, show a prominent "Create your workspace" prompt (notification, panel, or modal). User clicks → command runs.
+**Activation behavior:** On first run after install, show a prominent "Create your workspace" prompt (notification, panel, or modal). User clicks → setup wizard runs.
 
-**Command links in Markdown:** Welcome.md uses `command:` links so users can click instead of type:
-```markdown
-[Set up cloud backup](command:zendoc.setupBackup)
-```
+**Setup wizard flow (single flow):**
+1. Create workspace folder, copy template, initialize Git.
+2. **Connect to GitHub** (integrated, not optional):
+   - Check if `gh` is installed. If not, prompt with install instruction (or offer to run `brew install gh`).
+   - Run `gh auth login` → browser opens → user signs in to GitHub.
+   - Run `gh repo create [name] --private --source=. --push`.
+3. Open workspace. Show Welcome.md.
+4. Confirm: "Your workspace is ready. Your work backs up to GitHub automatically."
 
-**GitHub setup wizard (inside plugin):** When user clicks "Set up cloud backup":
-1. Check if `gh` is installed. If not, prompt with install instruction.
-2. Run `gh auth login` → browser opens → user signs in.
-3. Run `gh repo create [name] --private --source=. --push`.
-4. Confirm: "Your work is now backed up."
+**Fallback:** If user skips or GitHub setup fails, offer `zendoc.setupBackup` command for retry. Welcome.md can link to it.
 
 ---
 
@@ -104,7 +103,7 @@ All GitHub operations use the command line:
 - GitHub CLI (`gh`) — install via `brew install gh` or include in installer
 - GitHub account
 
-**Onboarding flow:** When user runs "Set up cloud backup," the agent runs `gh auth login` (if needed), then `gh repo create`.
+**Onboarding flow:** GitHub setup is part of `zendoc.createWorkspace`. The wizard runs `gh auth login` and `gh repo create` before opening the workspace.
 
 ---
 
@@ -216,15 +215,16 @@ Include these rules in `.vscode/.cursor/rules/`:
 
 ---
 
-## 11. GitHub Setup Flow
+## 11. GitHub Setup Flow (Inside Setup Wizard)
 
-When user runs "Set up cloud backup" or equivalent:
+GitHub setup runs as part of `zendoc.createWorkspace`, not as a separate step:
 
-1. Check if `gh` is installed. If not: `brew install gh` (or prompt user).
-2. Run `gh auth login` — opens browser for one-time sign-in.
-3. Run `git init` (if not already).
-4. Run `gh repo create zendoc --private --source=. --push`.
-5. Confirm: "Your work is now backed up to GitHub."
+1. After creating workspace folder and copying template, run `git init`.
+2. Check if `gh` is installed. If not: prompt user to run `brew install gh` or provide install link.
+3. Run `gh auth login` — opens browser for one-time sign-in.
+4. Run `gh repo create [name] --private --source=. --push`.
+5. If successful: "Your work backs up to GitHub automatically."
+6. If user skips or fails: workspace still works locally. Offer `zendoc.setupBackup` for retry later.
 
 ---
 
@@ -251,7 +251,7 @@ Before packaging, strip all personal paths and machine-specific config:
 
 ## 14. Checklist for Packaging
 
-- [ ] Plugin implements `zendoc.createWorkspace` and `zendoc.setupBackup` commands
+- [ ] Plugin implements `zendoc.createWorkspace` (includes GitHub setup) and `zendoc.setupBackup` (retry/skip flow)
 - [ ] Plugin shows "Create workspace" prompt on first activation
 - [ ] Install GitDoc, Markdown All in One, Markdown for Humans (when workspace created)
 - [ ] Create workspace folder structure
