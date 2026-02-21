@@ -16,7 +16,7 @@ Everything required to build and package Zendoc for distribution. This document 
 
 **Primary delivery:** VS Code extension (works in Cursor). The extension handles workspace creation, extension installation, and GitHub setup via a guided wizard with native dialogs.
 
-**Profile:** Default profile is fine. New users get the default profile when they install Cursor. No need to create a separate Zendoc profile.
+**Profile:** Always use a dedicated "Zendoc" profile. The wizard installs extensions into the Zendoc profile and opens the workspace with `cursor /path --profile "Zendoc"`. If the profile doesn't exist, the CLI creates it. This keeps the user's default or existing profiles untouched—whether they're new to Cursor or have an existing setup.
 
 ---
 
@@ -37,7 +37,7 @@ Everything required to build and package Zendoc for distribution. This document 
 | 3 | Click "Install Zendoc" on website → Cursor opens to extension page |
 | 4 | Click "Install" in Cursor |
 | 5 | Click "Create workspace" in extension's notification |
-| 6 | Extension runs wizard: folder picker → creates workspace → runs gh auth (browser) → gh repo create → installs extensions via CLI → opens workspace |
+| 6 | Extension runs wizard: folder picker → creates workspace → runs gh auth (browser) → gh repo create → installs extensions to Zendoc profile → opens workspace in Zendoc profile |
 
 GitHub setup is **part of the setup flow**, not optional. It's critical to the value prop: your work is backed up automatically.
 
@@ -60,21 +60,21 @@ The Zendoc extension is a **VS Code extension** (works in Cursor). It uses nativ
 - `window.showInputBox()` — Repo name, or other inputs if needed
 - `window.showInformationMessage()` — Status updates, notifications
 - `vscode.workspace.fs` — Create folders, write files
-- `child_process.exec()` — Run `gh auth login`, `gh repo create`, `cursor --install-extension`
+- `child_process.exec()` — Run `gh auth login`, `gh repo create`, `cursor --install-extension --profile "Zendoc"`, `cursor /path --profile "Zendoc"`
 
 **Setup wizard flow:**
 1. Show folder picker → user selects location (e.g., ~/Documents).
 2. Create workspace folder, copy template, run `git init`.
 3. **Connect to GitHub:** Show message: "Don't have a GitHub account? You can create one when the browser opens—it's all in one flow." Then check if `gh` installed. If not, show install instruction. Run `gh auth login` → browser opens. Run `gh repo create [name] --private --source=. --push`.
-4. Run `cursor --install-extension` (or `code --install-extension`) for GitDoc, Markdown All in One, Markdown for Humans.
-5. Open workspace via `vscode.commands.executeCommand('vscode.openFolder', uri)`.
+4. Run `cursor --install-extension <id> --profile "Zendoc"` (or `code --install-extension <id> --profile "Zendoc"`) for GitDoc, Markdown All in One, Markdown for Humans.
+5. Open workspace in Zendoc profile: run `cursor /path/to/workspace --profile "Zendoc"` (or `code`). This creates the Zendoc profile if it doesn't exist and associates the folder with it.
 6. Show Welcome.md. Confirm: "Your workspace is ready."
 
 ---
 
 ## 4. Required Extensions
 
-These extensions **must** be installed (Zendoc extension runs `cursor --install-extension` for each when creating workspace):
+These extensions **must** be installed into the Zendoc profile (Zendoc extension runs `cursor --install-extension <id> --profile "Zendoc"` for each when creating workspace):
 
 | Extension | Publisher | Extension ID | Purpose |
 |-----------|------------|--------------|---------|
@@ -268,7 +268,7 @@ Before packaging, strip all personal paths and machine-specific config:
 
 - [ ] Extension implements `zendoc.createWorkspace` and `zendoc.setupBackup` commands
 - [ ] Extension shows "Create workspace" notification on first activation
-- [ ] Extension uses native UI (folder picker, input box) and runs shell commands (gh, cursor --install-extension)
+- [ ] Extension uses native UI (folder picker, input box) and runs shell commands (gh, cursor --install-extension --profile "Zendoc")
 - [ ] Install GitDoc, Markdown All in One, Markdown for Humans (when workspace created)
 - [ ] Create workspace folder structure
 - [ ] Copy all config files (settings, extensions, rules)
@@ -278,4 +278,5 @@ Before packaging, strip all personal paths and machine-specific config:
 - [ ] Add .gitignore
 - [ ] Strip personal paths (clean-room audit)
 - [ ] Document "Set up cloud backup" flow (gh auth + gh repo create)
+- [ ] Extension uses dedicated Zendoc profile (install extensions with `--profile "Zendoc"`, open workspace with `cursor /path --profile "Zendoc"`)
 - [ ] Test on fresh machine / fresh profile

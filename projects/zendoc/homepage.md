@@ -32,7 +32,7 @@ The website should hide complexity. Users see only two steps. Everything else is
 | 3 | Click "Install Zendoc" on website → Cursor opens to extension page |
 | 4 | Click "Install" in Cursor |
 | 5 | Click "Create workspace" in extension's notification |
-| 6 | Wizard runs: folder picker → creates workspace → GitHub sign-in (browser) → connects repo → installs extensions → opens workspace |
+| 6 | Wizard runs: folder picker → creates workspace → GitHub sign-in (browser) → connects repo → installs extensions to Zendoc profile → opens workspace in Zendoc profile |
 
 GitHub connection is part of the setup. No separate step.
 
@@ -41,7 +41,7 @@ GitHub connection is part of the setup. No separate step.
 ## Design Principles
 
 - **Homepage:** Only Cursor + extension. Nothing else.
-- **Profile:** Default profile is fine. New users don't need to create one.
+- **Profile:** The wizard creates a dedicated Zendoc profile—no setup needed. Your existing Cursor setup stays untouched.
 - **Extension:** VS Code extension with native UI. Handles workspace creation, GitHub connection, extension installation in one wizard flow.
 - **GitHub is core:** Connecting to GitHub is part of the setup wizard, not optional. It's the value prop—your work backs up automatically.
 - **Clicks only:** No typing, no Command Palette, no Chat commands required for core flow.
