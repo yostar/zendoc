@@ -19,10 +19,10 @@ The vision evolved from an aesthetic pursuit into a structural one. We moved awa
 Zendoc exists because there is a "Missing Middle" in the current market for power-writers:
 
 
-|     |     |     |
-| --- | --- | --- |
-|     |     |     |
-|     |     |     |
+| **The "Pretty" Apps** (Notion, Bear)                                         | **The "Power" Tools** (Cursor, Obsidian)                                   | **The Zendoc Vision**                                                          |
+| ---------------------------------------------------------------------------- | -------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| **Walled Gardens:** Proprietary databases and slow, cloud-dependent syncing. | **High Noise:** Distracting UI, badges, and pop-ups designed for coding.   | **Industrial Grade:** The speed and reliability of an IDE without the clutter. |
+| **Fragile History:** Limited or proprietary version control.                 | **High Friction:** Requires technical setup and constant "tool-tinkering". | **Immutable Memory:** Professional-grade Git versioning for every thought.     |
 
 
 ## 4. The Core Pillars
