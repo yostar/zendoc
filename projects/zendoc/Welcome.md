@@ -14,9 +14,11 @@ You are currently inside a professional-grade writing engine that has been "tame
 
 ## 🛠 Quick Start
 
-- **Create a New Note:** Right-click the `projects` folder in the sidebar and select **New File**. Name it something like `Idea.md`. Or better yet, just ask me to "create a new project" or "create a new file inside project x" - I'll take care of it.  
+- **Create a New Note:** Right-click the `projects` folder in the left sidebar and select **New File**. Name it something like `Idea.md`.   
 
-- **The "Zen" Sidebar:** Your sidebar is on the **right**. This keeps your text centered and prevents your eyes from jumping to the left every time you start a new line.
+- **The "Zen" Chat:** That's how you talk to me: bottom of the sidebar is on the **right**. I can do just about anything.
+  - You can ask me to "create a new project" or "create a new file inside project x" - I'll take care of it.
+  - You can tell me things like "save to instructions: xyz" and I'll never forget it
 
 ## ⌨️ Helpful Shortcuts
 
