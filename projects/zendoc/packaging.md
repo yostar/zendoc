@@ -68,7 +68,7 @@ The Zendoc extension is a **VS Code extension** (works in Cursor). It uses nativ
 3. **Connect to GitHub:** Show message: "Don't have a GitHub account? You can create one when the browser opens—it's all in one flow." Then check if `gh` installed. If not, show install instruction. Run `gh auth login` → browser opens. Run `gh repo create [name] --private --source=. --push`.
 4. Run `cursor --install-extension <id> --profile "Zendoc"` (or `code --install-extension <id> --profile "Zendoc"`) for GitDoc, Markdown All in One, Markdown for Humans.
 5. Open workspace in Zendoc profile: run `cursor /path/to/workspace --profile "Zendoc"` (or `code`). This creates the Zendoc profile if it doesn't exist and associates the folder with it.
-6. Show Welcome.md. Confirm: "Your workspace is ready."
+6. Show Welcome.md (at root). Confirm: "Your workspace is ready."
 
 ---
 
@@ -118,6 +118,7 @@ The installer creates a workspace with this structure:
 
 ```
 zendoc/
+├── Welcome.md          ← Workspace README / first-run onboarding
 ├── .vscode/
 │   ├── settings.json
 │   ├── extensions.json
@@ -129,7 +130,6 @@ zendoc/
 ├── AGENTS.md
 ├── projects/
 │   ├── zendoc/
-│   │   ├── Welcome.md
 │   │   ├── AGENTS.md
 │   │   ├── vision.md
 │   │   ├── roadmap.md
@@ -138,8 +138,6 @@ zendoc/
 │   │   └── packaging.md
 │   └── [starter-project]/
 │       └── AGENTS.md
-├── Ideas/
-├── Logs/
 └── .gitignore
 ```
 
@@ -214,7 +212,7 @@ Include these rules in `.vscode/.cursor/rules/`:
 
 | File | Purpose |
 |------|---------|
-| `projects/zendoc/Welcome.md` | First-run onboarding, shortcuts, instructions |
+| `Welcome.md` | Workspace README / first-run onboarding, shortcuts, instructions (at root) |
 | `projects/zendoc/vision.md` | Product vision |
 | `projects/zendoc/roadmap.md` | Roadmap |
 | `projects/zendoc/business_model.md` | Business model |
