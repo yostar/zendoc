@@ -3,6 +3,7 @@
 ## Core Configuration (The "Spec")
 
 - **Theme:** Cursor Light (High Contrast).
+- **Dotfiles Hidden:** Files and folders starting with `.` (e.g., `.vscode`, `.git`) are hidden by default. Press `Cmd + Shift + A` to toggle visibility (requires "Toggle Excluded Files" extension).
 - **Layout:** Sidebar on the **Right**, Activity Bar **Hidden**.
 - **Auto-Save:** Enabled via `afterDelay` (1000ms) to ensure instant disk writing.
 - **Sync:** Work automatically publishes to GitHub (Repo: `zendoc`).

@@ -28,10 +28,11 @@ You are currently inside a professional-grade writing engine that has been "tame
 | **Hide/Show Sidebar** | `Cmd + B`         |
 | **Search Everything** | `Cmd + P`         |
 | **Open Command Menu** | `Cmd + Shift + P` |
+| **Show/Hide Dotfiles** | `Cmd + Shift + A` |
 
 
 ---
 
-> **Tip:** If the screen feels too "busy," remember you can hide everything except the text you are writing. This is a space designed for *you*, not the machine.
+> **Tip:** If the screen feels too "busy," remember you can hide everything except the text you are writing. This is a space designed for *you*, not the machine. Config folders (like `.vscode`) are hidden by default—install the recommended "Toggle Excluded Files" extension if prompted, then use `Cmd + Shift + A` to show them when needed.
 
 **Happy writing.**
