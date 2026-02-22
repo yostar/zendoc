@@ -189,9 +189,10 @@ export function activate(context: vscode.ExtensionContext) {
 
         vscode.window.showInformationMessage('Installing extensions (GitDoc, Markdown All in One, Markdown for Humans)...');
 
+        // Install to default profile (Zendoc profile doesn't exist yet; TODO: create profile first for isolation)
         for (const extId of REQUIRED_EXTENSIONS) {
           try {
-            await runCommand(`"${cliPath}" --install-extension ${extId} --profile "${ZENDOC_PROFILE}"`);
+            await runCommand(`"${cliPath}" --install-extension ${extId}`);
             log(`Installed: ${extId}`);
           } catch (err) {
             log(`Failed to install ${extId}: ${err}`);
@@ -206,8 +207,8 @@ export function activate(context: vscode.ExtensionContext) {
           }
         }
 
-        vscode.window.showInformationMessage('Opening workspace in Zendoc profile...');
-        exec(`"${cliPath}" "${workspacePath}" --profile "${ZENDOC_PROFILE}"`, (err) => {
+        vscode.window.showInformationMessage('Opening workspace...');
+        exec(`"${cliPath}" "${workspacePath}"`, (err) => {
           if (err) {
             log(`Open failed: ${err}`);
             vscode.window.showInformationMessage(

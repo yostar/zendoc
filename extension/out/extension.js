@@ -163,9 +163,10 @@ function activate(context) {
                 const cliExists = cliPath.includes('/') ? fs.existsSync(cliPath) : true;
                 log(`Using CLI: ${cliPath} (exists: ${cliExists})`);
                 vscode.window.showInformationMessage('Installing extensions (GitDoc, Markdown All in One, Markdown for Humans)...');
+                // Install to default profile (Zendoc profile doesn't exist yet; TODO: create profile first for isolation)
                 for (const extId of REQUIRED_EXTENSIONS) {
                     try {
-                        await runCommand(`"${cliPath}" --install-extension ${extId} --profile "${ZENDOC_PROFILE}"`);
+                        await runCommand(`"${cliPath}" --install-extension ${extId}`);
                         log(`Installed: ${extId}`);
                     }
                     catch (err) {
@@ -177,8 +178,8 @@ function activate(context) {
                         });
                     }
                 }
-                vscode.window.showInformationMessage('Opening workspace in Zendoc profile...');
-                (0, child_process_1.exec)(`"${cliPath}" "${workspacePath}" --profile "${ZENDOC_PROFILE}"`, (err) => {
+                vscode.window.showInformationMessage('Opening workspace...');
+                (0, child_process_1.exec)(`"${cliPath}" "${workspacePath}"`, (err) => {
                     if (err) {
                         log(`Open failed: ${err}`);
                         vscode.window.showInformationMessage(`Workspace created at ${workspacePath}. Open it manually with File > Open Folder.`);
