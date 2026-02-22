@@ -56,10 +56,13 @@ async function copyDir(src, dest) {
         }
     }
 }
-async function runCommand(cmd, cwd) {
+async function runCommand(cmd, cwd, env) {
     log(`Running: ${cmd}`);
     try {
-        const result = await execAsync(cmd, { cwd });
+        const result = await execAsync(cmd, {
+            cwd,
+            env: env ?? getEnvWithCommonPaths(),
+        });
         if (result.stdout)
             log(`stdout: ${result.stdout.trim()}`);
         if (result.stderr)
@@ -73,9 +76,18 @@ async function runCommand(cmd, cwd) {
         throw new Error(msg);
     }
 }
+function getEnvWithCommonPaths() {
+    const pathEnv = process.env.PATH || '';
+    const extraPaths = process.platform === 'darwin'
+        ? '/opt/homebrew/bin:/usr/local/bin:'
+        : process.platform === 'win32'
+            ? ''
+            : '/usr/local/bin:';
+    return { ...process.env, PATH: extraPaths + pathEnv };
+}
 async function isGhInstalled() {
     try {
-        await execAsync('gh --version');
+        await execAsync('gh --version', { env: getEnvWithCommonPaths() });
         return true;
     }
     catch {
@@ -251,8 +263,14 @@ function activate(context) {
             }
             const ghInstalled = await isGhInstalled();
             if (!ghInstalled) {
-                const install = await vscode.window.showErrorMessage('GitHub CLI is needed for one-click setup. Install it, then try again.', 'Open install page', 'Cancel');
-                if (install === 'Open install page') {
+                const install = await vscode.window.showErrorMessage('GitHub CLI is needed for one-click setup.', process.platform === 'darwin' ? 'Install with Homebrew' : 'Open install page', 'Cancel');
+                if (install === 'Install with Homebrew') {
+                    const term = vscode.window.createTerminal({ name: 'Install GitHub CLI' });
+                    term.show();
+                    term.sendText('brew install gh');
+                    vscode.window.showInformationMessage('Running "brew install gh" in the terminal. When it finishes, run "Set up cloud backup" again.');
+                }
+                else if (install === 'Open install page') {
                     vscode.env.openExternal(vscode.Uri.parse('https://cli.github.com/'));
                 }
                 return;
@@ -263,9 +281,10 @@ function activate(context) {
                 const connect = await vscode.window.showInformationMessage('Your browser will open. Sign in to GitHub once—your work will back up automatically from then on.', 'Connect GitHub', 'Cancel');
                 if (connect !== 'Connect GitHub')
                     return;
-                await runCommand('gh auth login --web', targetPath);
+                const env = getEnvWithCommonPaths();
+                await runCommand('gh auth login --web', targetPath, env);
                 const workspaceName = path.basename(targetPath);
-                await runCommand(`gh repo create ${workspaceName} --private --source=. --push`, targetPath);
+                await runCommand(`gh repo create ${workspaceName} --private --source=. --push`, targetPath, env);
                 vscode.window.showInformationMessage('Your work backs up to GitHub automatically.');
             }
             catch (error) {
