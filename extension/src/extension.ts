@@ -187,24 +187,16 @@ export function activate(context: vscode.ExtensionContext) {
         const cliExists = cliPath.includes('/') ? fs.existsSync(cliPath) : true;
         log(`Using CLI: ${cliPath} (exists: ${cliExists})`);
 
-        vscode.window.showInformationMessage('Creating Zendoc profile and opening workspace...');
+        vscode.window.showInformationMessage('Creating Zendoc profile and installing extensions (a window may open briefly)...');
 
-        const workspaceFile = path.join(workspacePath, 'zendoc.code-workspace');
-
-        // Open workspace file (settings ensure Explorer left, theme, Markdown for Humans; readme opens README.md)
-        exec(`"${cliPath}" "${workspaceFile}" --profile "${ZENDOC_PROFILE}"`, (err) => {
-          if (err) {
-            log(`Open failed: ${err}`);
-            vscode.window.showInformationMessage(
-              `Workspace created at ${workspacePath}. Open it manually with File > Open Folder.`
-            );
-          }
+        // 1. Create profile by opening Cursor briefly (profile is created if it doesn't exist)
+        exec(`"${cliPath}" --profile "${ZENDOC_PROFILE}"`, (err) => {
+          if (err) log(`Profile creation: ${err}`);
         });
-
-        // Wait for Cursor to start and create the profile, then install extensions into it
         await new Promise((resolve) => setTimeout(resolve, 5000));
-        vscode.window.showInformationMessage('Installing extensions into Zendoc profile (GitDoc, Markdown All in One, Markdown for Humans)...');
 
+        // 2. Install extensions BEFORE opening workspace (so layout/extensions apply when window loads)
+        vscode.window.showInformationMessage('Installing extensions (GitDoc, Markdown All in One, Markdown for Humans)...');
         for (const extId of REQUIRED_EXTENSIONS) {
           try {
             await runCommand(`"${cliPath}" --install-extension ${extId} --profile "${ZENDOC_PROFILE}"`);
@@ -212,7 +204,7 @@ export function activate(context: vscode.ExtensionContext) {
           } catch (err) {
             log(`Failed to install ${extId}: ${err}`);
             vscode.window.showWarningMessage(
-              `Could not install ${extId}. Install it manually from the Extensions panel when the workspace opens.`,
+              `Could not install ${extId}. Install it manually from the Extensions panel.`,
               'Show Extensions'
             ).then((choice) => {
               if (choice === 'Show Extensions') {
@@ -222,7 +214,19 @@ export function activate(context: vscode.ExtensionContext) {
           }
         }
 
-        vscode.window.showInformationMessage('Your workspace is ready. Extensions are installed in the Zendoc profile—check Welcome.md to get started.');
+        // 3. Open workspace in the same window (--reuse-window) so it replaces the empty profile window
+        const workspaceFile = path.join(workspacePath, 'zendoc.code-workspace');
+        vscode.window.showInformationMessage('Opening workspace...');
+        exec(`"${cliPath}" "${workspaceFile}" --profile "${ZENDOC_PROFILE}" --reuse-window`, (err) => {
+          if (err) {
+            log(`Open failed: ${err}`);
+            vscode.window.showInformationMessage(
+              `Workspace created at ${workspacePath}. Open it manually with File > Open Folder.`
+            );
+          }
+        });
+
+        vscode.window.showInformationMessage('Your workspace is ready. A new window will open—check Welcome.md to get started.');
       } catch (error) {
         const msg = error instanceof Error ? error.message : String(error);
         log(`Fatal error: ${msg}`);
