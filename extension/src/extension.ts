@@ -81,9 +81,11 @@ async function isGhInstalled(): Promise<boolean> {
 }
 
 export function activate(context: vscode.ExtensionContext) {
-  outputChannel = vscode.window.createOutputChannel('Zendoc');
-  context.subscriptions.push(outputChannel);
-  log('Zendoc extension activated');
+  console.log('[Zendoc] activate() called');
+  try {
+    outputChannel = vscode.window.createOutputChannel('Zendoc');
+    context.subscriptions.push(outputChannel);
+    log('Zendoc extension activated');
 
   const createWorkspace = vscode.commands.registerCommand(
     'zendoc.createWorkspace',
@@ -278,6 +280,12 @@ export function activate(context: vscode.ExtensionContext) {
           vscode.commands.executeCommand('zendoc.createWorkspace');
         }
       });
+  }
+  } catch (err) {
+    console.error('[Zendoc] Activation failed:', err);
+    if (outputChannel) {
+      outputChannel.appendLine(`Activation error: ${err}`);
+    }
   }
 }
 
