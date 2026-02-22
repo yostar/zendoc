@@ -8,21 +8,41 @@ I suggested something to him and quickly realized the tools I'm used to were sim
 
 Software development has incredible tools - version control, locally stored files, cloud backup, and of course now AI assistants that do most of the heavy lifting. But when I sit down to write a note, a document, or even this post, none of that sophistication exists. Everything is propertiety - Microsoft Word, Google Docs, Notion, Evernote... AI is being baked in - but if you're not a software developer using tools like @Cursor, you just don't know.
 
-So I built something. 
+So I built something this weekend...
 
 I'm bringing the **Docs-as-Code** workflow to the non-technical writer. Why should devs have all the fun?
 
-**Zendoc** is a writing environment that runs *inside* **Cursor **- I use Cursor all day, every day to write code. It's absolutely incredible. And while it also suffers from context window limits (since it just leverages different AI models with their own limits) it leverages AGENTS.md files that can store permament memory and rules, that it always uses on every prompt. For some reason this just isn't available when you chat with ChatGPT or Gemini etc. I don't know why... 
+**Zendoc** is a writing environment that runs *inside* **Cursor **- I use Cursor all day, every day to write code. It's absolutely incredible. And while it also suffers from context window limits (since it just leverages different AI models with their own limits) it leverages `AGENTS.md` files that can store permament memory and rules, that it always uses whenever you start a chat. For some reason this concept just isn't available when you chat with ChatGPT or Gemini or Claude - at least not as stricltly adhered to, and that's all sitting on the cloud - you have to upload everything to it. This sits on your local machine. That's a huge difference.
 
 I manage/add/edit hundreds of thousands of lines of complex code all by myself using Cursor.
 
-And code is basically just complex documents.  So why not Cursor for just managing your thoughts, ideas and other written content?
+And code is basically just complex documents.  
+
+So why not Cursor for just managing your thoughts, ideas and other written content?
+
+Imagine writing all your blog content, your support articles, your next novel, and there's a AI agent of choice sitting beside you waiting for you to say things like "start a new chapter" or "find every reference of x across the entire project and revise" or ... you know... just about anything. Inside a software development environment that's wired to do things you can't even imagine if you're not living and breathing sofware development all day.
 
 The biggest challenge was how to bridge the gap of a technical tool for a non-technical user. I made it as simple as possible.
 
-Two clicks to set up. Your work auto-commits to GitHub. AI that acts like a librarian, not a coder. No walled gardens, no proprietary formats - just Markdown files you own.
+The UI is stripped down to the most basic. Writing enviroment - files, editor and an AI chat.
 
-It's open source. It's free. And I hope it brings you joy and productivity!
+To set it up, you download and install Cursor - free.
+
+Then you install the Zendoc extension - free.
+
+Then you create a github account, give your first repo a name and copy/paste the URL.
+
+That's it.
+
+Your work auto-commits to GitHub - full, private, cloud backup with every revision you ever make to any file.  And every file is in a simple `markdown` file format (that you don't have to worry about when editing) but that means it's in the most universally supported format - like HTML for documents. Easily portable and publishable to just about anywhere or anything.
+
+The AI Agent that sits beside you is instructed to acts like a librarian, not a coder. 
+
+And in every project you can say things like "add instruction: always remember to capitalize and bold the first sentence of every new file" and it will remember that. Forever.
+
+This is also my first open source project, so if you're on the technical side feel free to star or fork it - make it better. please!
+
+I hope you'll give it a try! Please share your experience/bugs/feedback here - I'll do my best to address.
 
 → [Zendoc for Cursor](https://yoavschwartz.github.io/zendoc/)
 
