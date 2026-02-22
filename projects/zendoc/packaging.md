@@ -161,8 +161,8 @@ zendoc/
 | `workbench.colorTheme` | `Cursor Light` | Theme |
 | `workbench.activityBar.location` | `hidden` | Hide activity bar |
 | `workbench.sideBar.location` | `right` | Sidebar on right |
-| `editor.fontSize` | `17` | Readable font |
-| `editor.lineHeight` | `1.7` | Line spacing |
+| `editor.fontSize` | `14` | Readable font |
+| `editor.lineHeight` | `1.4` | Line spacing |
 | `editor.wordWrap` | `on` | Wrap lines |
 | `editor.lineNumbers` | `off` | Minimal UI |
 | `editor.minimap.enabled` | `false` | No minimap |
