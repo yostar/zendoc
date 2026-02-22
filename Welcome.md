@@ -14,7 +14,7 @@ You are currently inside a professional-grade writing engine that has been "tame
 
 2. **Standardized Freedom:** You are writing in **Markdown** (`.md`). These are simple text files that you own. You can open them in any app on any device, forever. No "walled gardens" here.  
 
-3. **AI at your fingertips:** Chat on the right with your agent of choice, or just leave it on auto. This experience has been fine-tuned for writing anything, about any topic. It has the sophistication of a software development tool, powering your writing. Have fun. 
+3. **Cursor For Writing:** This experience has been fine-tuned for writing anything, about any topic. It has the sophistication of a software development tool, powering your writing. Have fun. 
 
 ## 🛠 Quick Start
 
