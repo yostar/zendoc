@@ -46,6 +46,6 @@ I hope you'll give it a try! Please share your experience/bugs/feedback here - I
 
 *Fun fact: I conceptualized/built/configured/packaged Zendoc completely with AI, mostly inside Cursor - turning my workspace into the product that was packaging itself. It was very meta. My head hurts.*
 
-→ [Zendoc for Cursor](https://yoavschwartz.github.io/zendoc/)
+→ [Zendoc for Cursor](https://yostar.github.io/zendoc/)
 
-#writing #opensource #productivity #docs-as-code
+#writing #opensource #productivity #docs-as-code #cursor
