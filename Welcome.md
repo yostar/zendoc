@@ -1,6 +1,6 @@
 ![Zendoc](assets/zendoc-logo.png)
 
-# Welcome to Zendoc 🌿
+# Welcome
 
 ### Your high-performance, distraction-free writing sanctuary.
 
