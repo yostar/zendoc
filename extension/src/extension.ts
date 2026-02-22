@@ -248,6 +248,10 @@ function applyZendocLayout(context: vscode.ExtensionContext): void {
             await vscode.commands.executeCommand('markdownForHumans.openFile', welcomePath);
           } catch (_) {}
         }
+        // Ensure GitDoc is enabled for this workspace
+        try {
+          await vscode.commands.executeCommand('gitdoc.enable');
+        } catch (_) {}
       } catch (e) {
         log(`Layout apply failed: ${e}`);
       }
@@ -377,6 +381,15 @@ export function activate(context: vscode.ExtensionContext) {
             const doc = await vscode.workspace.openTextDocument(welcomePath);
             await vscode.window.showTextDocument(doc, { preview: false });
           } catch (_) {}
+        }
+
+        // Enable GitDoc so auto-commit works (setting alone may not activate it)
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        try {
+          await vscode.commands.executeCommand('gitdoc.enable');
+          log('GitDoc enabled');
+        } catch (e) {
+          log(`GitDoc enable: ${e}`);
         }
 
         vscode.window.showInformationMessage('Your workspace is ready. Check Welcome.md to get started.');
