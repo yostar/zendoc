@@ -261,19 +261,17 @@ function activate(context) {
         context.subscriptions.push(createWorkspace, setupBackup);
         // When in a Zendoc workspace, run commands to show Explorer and open Welcome.md
         applyZendocLayout(context);
-        // TODO: Restore "show once" logic when done testing
-        // const hasShownWelcome = context.globalState.get<boolean>('zendoc.welcomeShown');
-        // if (!hasShownWelcome) {
-        //   context.globalState.update('zendoc.welcomeShown', true);
-        log('Showing welcome notification');
-        vscode.window
-            .showInformationMessage('Create your Zendoc workspace', 'Create workspace')
-            .then((choice) => {
-            if (choice === 'Create workspace') {
-                vscode.commands.executeCommand('zendoc.createWorkspace');
-            }
-        });
-        // }
+        const hasShownWelcome = context.globalState.get('zendoc.welcomeShown');
+        if (!hasShownWelcome) {
+            context.globalState.update('zendoc.welcomeShown', true);
+            vscode.window
+                .showInformationMessage('Create your Zendoc workspace', 'Create workspace')
+                .then((choice) => {
+                if (choice === 'Create workspace') {
+                    vscode.commands.executeCommand('zendoc.createWorkspace');
+                }
+            });
+        }
     }
     catch (err) {
         console.error('[Zendoc] Activation failed:', err);
