@@ -145,7 +145,9 @@ zendoc/
 
 **Starter project:** Include a minimal starter (e.g., `projects/starter/` or `projects/coach/`) so the user has a place to begin.
 
-**Template bundling:** The workspace template is bundled inside the extension. The extension copies it to the user's chosen location.
+**Template bundling:** The workspace template is bundled inside the extension at `extension/resources/template/`. The extension copies it to the user's chosen location.
+
+**Extension location:** `extension/` at repo root. Run `npm run compile` to build, F5 to debug.
 
 **Brand assets:** Logo and icons live in `assets/` at repo root. Used by the extension (marketplace icon), homepage, and docs.
 
