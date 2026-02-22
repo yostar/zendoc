@@ -12,7 +12,7 @@ So I built something this weekend...
 
 I'm bringing the **Docs-as-Code** workflow to the non-technical writer. Why should devs have all the fun?
 
-**Zendoc** is a writing environment that runs *inside* **Cursor **- I use Cursor all day, every day to write code. It's absolutely incredible. And while it also suffers from context window limits (since it just leverages different AI models with their own limits) it leverages `AGENTS.md` files that can store permament memory and rules, that it always uses whenever you start a chat. For some reason this concept just isn't available when you chat with ChatGPT or Gemini or Claude - at least not as stricltly adhered to, and that's all sitting on the cloud - you have to upload everything to it. This sits on your local machine. That's a huge difference.
+**Zendoc** is a writing environment that runs *inside* **Cursor **- I use Cursor all day, every day to write code. It's absolutely incredible. And while it also suffers from context window limits (since it just leverages different AI models with their own limits) it use a file that can store permament memory and rules, that it always uses whenever you start a chat. For some reason this concept just isn't available when you chat with ChatGPT or Gemini or Claude - at least not as stricltly adhered to. And that's all sitting on the cloud - you have to upload everything to it. This sits on your local machine. That's a huge difference.
 
 I manage/add/edit hundreds of thousands of lines of complex code all by myself using Cursor.
 
@@ -26,15 +26,15 @@ The biggest challenge was how to bridge the gap of a technical tool for a non-te
 
 The UI is stripped down to the most basic. Writing enviroment - files, editor and an AI chat.
 
-To set it up, you download and install Cursor - free.
+To set it up:
 
-Then you install the Zendoc extension - free.
-
-Then you're guided to create a github account, give your first repo a name and copy/paste the URL.
+1. download and install Cursor - free.
+2.  you install the Zendoc extension - free.
+3. create a github account, and the repo where your backups/revisions go.
 
 That's it.
 
-Your work auto-commits to GitHub - full, private, cloud backup with every revision you ever make to any file.  And every file is in a simple `markdown` file format (that you don't have to worry about when editing) but that means it's in the most universally supported format - like HTML for documents. Easily portable and publishable to just about anywhere or anything.
+Your work auto-saves to GitHub - fully private, cloud backup with every revision you ever make to any file.  And every file is in a simple `markdown` file format (that you don't have to worry about when editing) but that means it's in the most universally supported format - like HTML for documents. Easily portable and publishable to just about anywhere or anything.
 
 The AI Agent that sits beside you is instructed to acts like a librarian, not a coder. 
 
