@@ -20,7 +20,7 @@ And code is basically just complex documents.
 
 So why not Cursor for just managing your thoughts, ideas and other written content?
 
-Imagine writing all your blog content, your support articles, your next novel, and there's a AI agent of choice sitting beside you waiting for you to say things like "start a new chapter" or "find every reference of x across the entire project and revise" or ... you know... just about anything. Inside a software development environment that's wired to do things you can't even imagine if you're not living and breathing sofware development all day.
+Imagine writing all your blog content, your support articles, your next novel, and there's an AI agent of choice sitting beside you waiting for you to say things like "start a new chapter" or "find every reference of x and change to y" or ... you know... just about anything. All inside a tool that's wired to do things you can't even imagine if you're not living and breathing sofware all day.
 
 The biggest challenge was how to bridge the gap of a technical tool for a non-technical user. I made it as simple as possible.
 
@@ -40,7 +40,7 @@ The AI Agent that sits beside you is instructed to acts like a librarian, not a 
 
 And in every project you can say things like "add instruction: always remember to capitalize and bold the first sentence of every new file" and it will remember that. Forever.
 
-This is also my first open source project, so if you're on the technical side feel free to star or fork it - make it better. please!
+This is also my first open source project, so if you're on the technical side feel free to star or fork it - make it better. Please!
 
 I hope you'll give it a try! Please share your experience/bugs/feedback here - I'll do my best to address.
 
