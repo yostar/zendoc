@@ -115,15 +115,25 @@ function getGitHubSetupHtml() {
   </style>
 </head>
 <body>
-  <h2>Connect to GitHub</h2>
-  <ol>
-    <li>Create an empty repo at <a href="#" id="open-github">github.com/new</a> (no README, .gitignore, or license)</li>
-    <li>Copy the repo URL from the page</li>
-    <li>Paste it below and click Connect</li>
-  </ol>
-  <input type="text" id="repo-url" placeholder="https://github.com/username/repo-name.git" />
-  <div id="message"></div>
-  <button id="connect">Connect</button>
+  <div id="connect-step">
+    <h2>Connect to GitHub</h2>
+    <ol>
+      <li>Create an empty repo at <a href="#" id="open-github">github.com/new</a> (no README, .gitignore, or license)</li>
+      <li>Copy the repo URL from the page</li>
+      <li>Paste it below and click Connect</li>
+    </ol>
+    <input type="text" id="repo-url" placeholder="https://github.com/username/repo-name.git" />
+    <div id="message"></div>
+    <button id="connect">Connect</button>
+  </div>
+  <div id="success-step" style="display:none">
+    <h2>Connected to GitHub</h2>
+    <p id="success-msg" class="success"></p>
+    <p style="margin-top:16px;font-size:13px;color:var(--vscode-descriptionForeground)">
+      One more step: enable automatic backup so your changes are committed as you write.
+    </p>
+    <button id="enable-backup" style="margin-top:12px">Enable Automatic Backup</button>
+  </div>
   <script>
     const vscode = acquireVsCodeApi();
     window.addEventListener('message', (event) => {
@@ -131,9 +141,9 @@ function getGitHubSetupHtml() {
       const msgEl = document.getElementById('message');
       const btn = document.getElementById('connect');
       if (type === 'success') {
-        msgEl.textContent = message;
-        msgEl.className = 'success';
-        document.getElementById('repo-url').value = '';
+        document.getElementById('connect-step').style.display = 'none';
+        document.getElementById('success-step').style.display = 'block';
+        document.getElementById('success-msg').textContent = message;
       } else if (type === 'error') {
         msgEl.textContent = message;
         msgEl.className = 'error';
@@ -162,6 +172,9 @@ function getGitHubSetupHtml() {
       msgEl.className = '';
       btn.disabled = true;
       vscode.postMessage({ type: 'connect', url });
+    };
+    document.getElementById('enable-backup').onclick = () => {
+      vscode.postMessage({ type: 'enableBackup' });
     };
   </script>
 </body>
@@ -193,7 +206,18 @@ function showGitHubSetupPanel(context, targetPath) {
     const panel = vscode.window.createWebviewPanel('zendoc.githubSetup', 'Set up GitHub backup', vscode.ViewColumn.One, { enableScripts: true, retainContextWhenHidden: true });
     panel.webview.html = getGitHubSetupHtml();
     panel.webview.onDidReceiveMessage(async (message) => {
-        if (message.type === 'openGitHub') {
+        if (message.type === 'enableBackup') {
+            try {
+                await vscode.commands.executeCommand('gitdoc.enable');
+                vscode.window.showInformationMessage('Automatic backup enabled.');
+                setTimeout(() => panel.dispose(), 1500);
+            }
+            catch (e) {
+                log(`GitDoc enable failed: ${e}`);
+                vscode.window.showErrorMessage('Could not enable GitDoc. Run "GitDoc: Enable" from the Command Palette.');
+            }
+        }
+        else if (message.type === 'openGitHub') {
             vscode.env.openExternal(vscode.Uri.parse('https://github.com/new'));
         }
         else if (message.type === 'connect' && message.url) {
@@ -204,7 +228,6 @@ function showGitHubSetupPanel(context, targetPath) {
                 log('Pushed to GitHub');
                 outputChannel?.hide();
                 panel.webview.postMessage({ type: 'success', message: 'Your work backs up to GitHub automatically.' });
-                vscode.window.showInformationMessage('Your work backs up to GitHub automatically.');
             }
             catch (error) {
                 const msg = error instanceof Error ? error.message : String(error);
