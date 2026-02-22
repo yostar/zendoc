@@ -35,5 +35,6 @@
   "workbench.statusBar.visible": false,
   "explorer.decorations.badges": false,
   "explorer.decorations.colors": false,
-  "workbench.iconTheme": "vs-minimal"
+  "workbench.iconTheme": "vs-minimal",
+  "cursor.experimental.agentUi": "disabled"
 }

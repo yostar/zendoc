@@ -165,29 +165,12 @@ export function activate(context: vscode.ExtensionContext) {
         const cliExists = cliPath.includes('/') ? fs.existsSync(cliPath) : true;
         log(`Using CLI: ${cliPath} (exists: ${cliExists})`);
 
-        vscode.window.showInformationMessage('Opening workspace...');
-
-        // 1. Open folder in CURRENT window so we can run layout commands (same window = extension can run Cmd+B + open Welcome.md)
-        const uri = vscode.Uri.file(workspacePath);
-        await vscode.commands.executeCommand('vscode.openFolder', uri);
-
-        // 2. Run workbench.view.explorer (show Explorer) and open Welcome.md
-        await new Promise((resolve) => setTimeout(resolve, 800));
-        try {
-          await vscode.commands.executeCommand('workbench.view.explorer');
-          const welcomePath = vscode.Uri.joinPath(uri, 'Welcome.md');
-          const doc = await vscode.workspace.openTextDocument(welcomePath);
-          await vscode.window.showTextDocument(doc, { preview: false });
-        } catch (e) {
-          log(`Layout apply failed: ${e}`);
-        }
-
-        // 3. Install extensions to Zendoc profile (for when user opens workspace in new window with profile)
-        await new Promise((resolve) => setTimeout(resolve, 2000));
         vscode.window.showInformationMessage('Installing extensions...');
+
+        // 1. Install extensions WITHOUT profile (current window = Extension Development Host uses default profile)
         for (const extId of REQUIRED_EXTENSIONS) {
           try {
-            await runCommand(`"${cliPath}" --install-extension ${extId} --profile "${ZENDOC_PROFILE}"`);
+            await runCommand(`"${cliPath}" --install-extension ${extId}`);
             log(`Installed: ${extId}`);
           } catch (err) {
             log(`Failed to install ${extId}: ${err}`);
@@ -200,6 +183,26 @@ export function activate(context: vscode.ExtensionContext) {
               }
             });
           }
+        }
+
+        vscode.window.showInformationMessage('Opening workspace...');
+
+        // 2. Open folder in CURRENT window so we can run layout commands
+        const uri = vscode.Uri.file(workspacePath);
+        await vscode.commands.executeCommand('vscode.openFolder', uri);
+
+        // 3. Run workbench.view.explorer (show Explorer) and open Welcome.md in Markdown for Humans
+        await new Promise((resolve) => setTimeout(resolve, 800));
+        const welcomePath = vscode.Uri.joinPath(uri, 'Welcome.md');
+        try {
+          await vscode.commands.executeCommand('workbench.view.explorer');
+          await vscode.commands.executeCommand('markdownForHumans.openFile', welcomePath);
+        } catch (e) {
+          log(`Layout apply failed: ${e}`);
+          try {
+            const doc = await vscode.workspace.openTextDocument(welcomePath);
+            await vscode.window.showTextDocument(doc, { preview: false });
+          } catch (_) {}
         }
 
         vscode.window.showInformationMessage('Your workspace is ready. Check Welcome.md to get started.');
