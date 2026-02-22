@@ -198,6 +198,7 @@ function showGitHubSetupPanel(context: vscode.ExtensionContext, targetPath: stri
       try {
         await runGitHubConnect(targetPath, message.url);
         log('Pushed to GitHub');
+        outputChannel?.hide();
         panel.webview.postMessage({ type: 'success', message: 'Your work backs up to GitHub automatically.' });
         vscode.window.showInformationMessage('Your work backs up to GitHub automatically.');
       } catch (error) {
