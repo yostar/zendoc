@@ -85,14 +85,35 @@ function applyZendocLayout(context: vscode.ExtensionContext): void {
   if (!folder) return;
 
   const welcomePath = vscode.Uri.joinPath(folder.uri, 'Welcome.md');
+  const gitignorePath = vscode.Uri.joinPath(folder.uri, '.gitignore');
   fs.access(welcomePath.fsPath, fs.constants.F_OK, (err) => {
     if (err) return; // Not a Zendoc workspace
     // Delay so workspace is fully loaded
     setTimeout(async () => {
       try {
         await vscode.commands.executeCommand('workbench.view.explorer');
-        const doc = await vscode.workspace.openTextDocument(welcomePath);
-        await vscode.window.showTextDocument(doc, { preview: false });
+        try {
+          await vscode.commands.executeCommand('markdownForHumans.openFile', welcomePath);
+        } catch (_) {
+          const doc = await vscode.workspace.openTextDocument(welcomePath);
+          await vscode.window.showTextDocument(doc, { preview: false });
+        }
+        // Workaround: initial open shows plain markdown; switching away and back fixes it
+        await new Promise((resolve) => setTimeout(resolve, 300));
+        try {
+          const otherDoc = await vscode.workspace.openTextDocument(gitignorePath);
+          await vscode.window.showTextDocument(otherDoc, { preview: false });
+          await new Promise((resolve) => setTimeout(resolve, 150));
+          await vscode.commands.executeCommand('markdownForHumans.openFile', welcomePath);
+        } catch (_) {
+          try {
+            await vscode.commands.executeCommand('markdownForHumans.openFile', welcomePath);
+          } catch (_) {}
+        }
+        // Hide agents sidebar (Option+Cmd+S toggle)
+        try {
+          await vscode.commands.executeCommand('workbench.action.toggleSecondarySideBar');
+        } catch (_) {}
       } catch (e) {
         log(`Layout apply failed: ${e}`);
       }
@@ -191,12 +212,28 @@ export function activate(context: vscode.ExtensionContext) {
         const uri = vscode.Uri.file(workspacePath);
         await vscode.commands.executeCommand('vscode.openFolder', uri);
 
-        // 3. Run workbench.view.explorer (show Explorer) and open Welcome.md in Markdown for Humans
+        // 3. Run workbench.view.explorer, open Welcome.md, fix initial render, hide agents sidebar
         await new Promise((resolve) => setTimeout(resolve, 800));
         const welcomePath = vscode.Uri.joinPath(uri, 'Welcome.md');
+        const gitignorePath = vscode.Uri.joinPath(uri, '.gitignore');
         try {
           await vscode.commands.executeCommand('workbench.view.explorer');
           await vscode.commands.executeCommand('markdownForHumans.openFile', welcomePath);
+          // Workaround: initial open shows plain markdown; switching away and back fixes it
+          await new Promise((resolve) => setTimeout(resolve, 300));
+          try {
+            const otherDoc = await vscode.workspace.openTextDocument(gitignorePath);
+            await vscode.window.showTextDocument(otherDoc, { preview: false });
+            await new Promise((resolve) => setTimeout(resolve, 150));
+            await vscode.commands.executeCommand('markdownForHumans.openFile', welcomePath);
+          } catch (_) {
+            // .gitignore may not exist; try reopening Welcome anyway
+            await vscode.commands.executeCommand('markdownForHumans.openFile', welcomePath);
+          }
+          // Hide agents sidebar (Option+Cmd+S toggle)
+          try {
+            await vscode.commands.executeCommand('workbench.action.toggleSecondarySideBar');
+          } catch (_) {}
         } catch (e) {
           log(`Layout apply failed: ${e}`);
           try {
