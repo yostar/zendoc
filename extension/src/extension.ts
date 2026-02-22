@@ -493,6 +493,10 @@ export function activate(context: vscode.ExtensionContext) {
     }
   );
 
+  const showWelcome = vscode.commands.registerCommand('zendoc.showWelcome', () => {
+    showWelcomePanel(context);
+  });
+
   const setupBackup = vscode.commands.registerCommand(
     'zendoc.setupBackup',
     async (workspacePath?: string) => {
@@ -511,7 +515,7 @@ export function activate(context: vscode.ExtensionContext) {
     }
   );
 
-  context.subscriptions.push(createWorkspace, setupBackup);
+  context.subscriptions.push(createWorkspace, showWelcome, setupBackup);
 
   // When in a Zendoc workspace, run commands to show Explorer and open Welcome.md
   applyZendocLayout(context);

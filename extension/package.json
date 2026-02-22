@@ -21,6 +21,10 @@
         "title": "Create Zendoc workspace"
       },
       {
+        "command": "zendoc.showWelcome",
+        "title": "Show Zendoc welcome"
+      },
+      {
         "command": "zendoc.setupBackup",
         "title": "Set up cloud backup (GitHub)"
       }

@@ -5,7 +5,10 @@
       "name": "Run Zendoc Extension",
       "type": "extensionHost",
       "request": "launch",
-      "args": ["--extensionDevelopmentPath=${workspaceFolder}/extension"],
+      "args": [
+        "--extensionDevelopmentPath=${workspaceFolder}/extension",
+        "${workspaceFolder}"
+      ],
       "outFiles": ["${workspaceFolder}/extension/out/**/*.js"],
       "preLaunchTask": "Compile Zendoc extension"
     }
