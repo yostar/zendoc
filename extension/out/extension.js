@@ -23,9 +23,9 @@ function getCliPath() {
     const isWindows = process.platform === 'win32';
     const isMac = process.platform === 'darwin';
     if (isMac) {
-        const appBin = path.join(path.dirname(execPath), '..', 'Resources', 'app', 'bin');
-        const cursorPath = path.join(appBin, 'cursor');
-        const codePath = path.join(appBin, 'code');
+        const execDir = path.dirname(execPath);
+        const cursorPath = path.join(execDir, '..', '..', '..', '..', 'Resources', 'app', 'bin', 'cursor');
+        const codePath = path.join(execDir, '..', '..', '..', '..', 'Resources', 'app', 'bin', 'code');
         if (fs.existsSync(cursorPath))
             return cursorPath;
         if (fs.existsSync(codePath))
@@ -157,7 +157,8 @@ function activate(context) {
                 }
             }
             const cliPath = getCliPath();
-            log(`Using CLI: ${cliPath}`);
+            const cliExists = cliPath.includes('/') ? fs.existsSync(cliPath) : true;
+            log(`Using CLI: ${cliPath} (exists: ${cliExists})`);
             vscode.window.showInformationMessage('Installing extensions (GitDoc, Markdown All in One, Markdown for Humans)...');
             for (const extId of REQUIRED_EXTENSIONS) {
                 try {
