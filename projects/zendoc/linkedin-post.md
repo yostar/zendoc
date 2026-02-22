@@ -6,7 +6,7 @@ I met someone this past week who was working diligently on sensitive documents i
 
 I suggested something to him and quickly realized the tools I'm used to were simply not available to someone non-technical.
 
-Software development has incredible tools - version control, locally stored files, cloud backup, and of course now AI assistants that do most of the heavy lifting. But when I sit down to write a note, a document, or even this post, none of that sophistication exists. Everything is proprietary - Microsoft Word, Google Docs, Notion, Evernote... AI is being baked in - but if you're not a software developer using tools like @Cursor, you just don't know.
+Software development has an entire ecosystem of packages and plugins-one command installs anything, and everything builds on what others have made. But when I sit down to write a note, a document, or even this post, none of that sophistication exists. All the tools are proprietary - Microsoft Word, Google Docs, Notion, Evernote... AI is being baked in - but if you're not a software developer using tools like @Cursor, you just don't know.
 
 So I built something this weekend...
 
