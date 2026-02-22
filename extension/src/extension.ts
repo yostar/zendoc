@@ -71,6 +71,147 @@ async function runCommand(cmd: string, cwd?: string): Promise<{ stdout: string; 
   }
 }
 
+function getGitHubSetupHtml(): string {
+  return `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: var(--vscode-font-family);
+      font-size: 14px;
+      padding: 20px;
+      color: var(--vscode-foreground);
+      line-height: 1.5;
+    }
+    h2 { margin-top: 0; }
+    ol { padding-left: 20px; }
+    a { color: var(--vscode-textLink-foreground); }
+    input {
+      width: 100%;
+      padding: 8px 12px;
+      margin: 12px 0;
+      font-size: 14px;
+      border: 1px solid var(--vscode-input-border);
+      background: var(--vscode-input-background);
+      color: var(--vscode-input-foreground);
+      box-sizing: border-box;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 14px;
+      background: var(--vscode-button-background);
+      color: var(--vscode-button-foreground);
+      border: none;
+      cursor: pointer;
+    }
+    button:hover { opacity: 0.9; }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    .error { color: var(--vscode-errorForeground); margin-top: 8px; }
+    .success { color: var(--vscode-testing-iconPassed); margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <h2>Connect to GitHub</h2>
+  <ol>
+    <li>Create an empty repo at <a href="#" id="open-github">github.com/new</a> (no README, .gitignore, or license)</li>
+    <li>Copy the repo URL from the page</li>
+    <li>Paste it below and click Connect</li>
+  </ol>
+  <input type="text" id="repo-url" placeholder="https://github.com/username/repo-name.git" />
+  <div id="message"></div>
+  <button id="connect">Connect</button>
+  <script>
+    const vscode = acquireVsCodeApi();
+    window.addEventListener('message', (event) => {
+      const { type, message } = event.data;
+      const msgEl = document.getElementById('message');
+      const btn = document.getElementById('connect');
+      if (type === 'success') {
+        msgEl.textContent = message;
+        msgEl.className = 'success';
+        document.getElementById('repo-url').value = '';
+      } else if (type === 'error') {
+        msgEl.textContent = message;
+        msgEl.className = 'error';
+        btn.disabled = false;
+      }
+    });
+    document.getElementById('open-github').onclick = (e) => {
+      e.preventDefault();
+      vscode.postMessage({ type: 'openGitHub' });
+    };
+    document.getElementById('connect').onclick = () => {
+      const url = document.getElementById('repo-url').value.trim();
+      const msgEl = document.getElementById('message');
+      const btn = document.getElementById('connect');
+      if (!url) {
+        msgEl.textContent = 'Enter the repo URL';
+        msgEl.className = 'error';
+        return;
+      }
+      if (!/^https:\\/\\/github\\.com\\/[\\w.-]+\\/[\\w.-]+(\\.git)?$/.test(url)) {
+        msgEl.textContent = 'Use a URL like https://github.com/username/repo-name';
+        msgEl.className = 'error';
+        return;
+      }
+      msgEl.textContent = 'Connecting...';
+      msgEl.className = '';
+      btn.disabled = true;
+      vscode.postMessage({ type: 'connect', url });
+    };
+  </script>
+</body>
+</html>`;
+}
+
+async function runGitHubConnect(targetPath: string, repoUrl: string): Promise<void> {
+  const url = repoUrl.trim().replace(/\.git$/, '') + '.git';
+  await runCommand(`git remote add origin ${url}`, targetPath);
+  try {
+    await runCommand('git rev-parse HEAD', targetPath);
+  } catch {
+    await runCommand('git add .', targetPath);
+    await runCommand('git commit -m "Initial commit"', targetPath);
+  }
+  await runCommand('git branch -M main', targetPath);
+  await runCommand('git push -u origin main', targetPath);
+}
+
+function showGitHubSetupPanel(context: vscode.ExtensionContext, targetPath: string): void {
+  const panel = vscode.window.createWebviewPanel(
+    'zendoc.githubSetup',
+    'Set up GitHub backup',
+    vscode.ViewColumn.One,
+    { enableScripts: true, retainContextWhenHidden: true }
+  );
+
+  panel.webview.html = getGitHubSetupHtml();
+
+  panel.webview.onDidReceiveMessage(async (message: { type: string; url?: string }) => {
+    if (message.type === 'openGitHub') {
+      vscode.env.openExternal(vscode.Uri.parse('https://github.com/new'));
+    } else if (message.type === 'connect' && message.url) {
+      outputChannel?.show();
+      log('Starting GitHub setup...');
+      try {
+        await runGitHubConnect(targetPath, message.url);
+        log('Pushed to GitHub');
+        panel.webview.postMessage({ type: 'success', message: 'Your work backs up to GitHub automatically.' });
+        vscode.window.showInformationMessage('Your work backs up to GitHub automatically.');
+      } catch (error) {
+        const msg = error instanceof Error ? error.message : String(error);
+        log(`GitHub setup failed: ${msg}`);
+        const userMsg = msg.includes('already exists')
+          ? 'A remote named "origin" already exists. Remove it first.'
+          : `Failed: ${msg}. When you push, use a Personal Access Token (github.com/settings/tokens).`;
+        panel.webview.postMessage({ type: 'error', message: userMsg });
+      }
+    }
+  });
+}
+
 function applyZendocLayout(context: vscode.ExtensionContext): void {
   const folder = vscode.workspace.workspaceFolders?.[0];
   if (!folder) return;
@@ -261,66 +402,7 @@ export function activate(context: vscode.ExtensionContext) {
         return;
       }
 
-      outputChannel?.show();
-      log('Starting GitHub setup...');
-
-      try {
-        const action = await vscode.window.showInformationMessage(
-          'Connect to GitHub: Create an empty repo at github.com/new (no README, .gitignore, or license), then paste the URL here.',
-          'Open GitHub',
-          'Paste URL',
-          'Cancel'
-        );
-        if (!action || action === 'Cancel') return;
-        if (action === 'Open GitHub') {
-          vscode.env.openExternal(vscode.Uri.parse('https://github.com/new'));
-        }
-
-        const repoUrl = await vscode.window.showInputBox({
-          prompt: 'Paste your GitHub repo URL',
-          placeHolder: 'https://github.com/username/repo-name.git',
-          validateInput: (value) => {
-            const trimmed = value?.trim() || '';
-            if (!trimmed) return 'Enter the repo URL';
-            if (!/^https:\/\/github\.com\/[\w.-]+\/[\w.-]+\.git$/.test(trimmed) && !/^https:\/\/github\.com\/[\w.-]+\/[\w.-]+$/.test(trimmed)) {
-              return 'Use a URL like https://github.com/username/repo-name or https://github.com/username/repo-name.git';
-            }
-            return null;
-          },
-        });
-
-        if (!repoUrl?.trim()) return;
-
-        const url = repoUrl.trim().replace(/\.git$/, '') + '.git';
-
-        await runCommand(`git remote add origin ${url}`, targetPath);
-        log('Remote added');
-
-        // Ensure we have a commit and main branch
-        try {
-          await runCommand('git rev-parse HEAD', targetPath);
-        } catch {
-          await runCommand('git add .', targetPath);
-          await runCommand('git commit -m "Initial commit"', targetPath);
-        }
-        await runCommand('git branch -M main', targetPath);
-        await runCommand('git push -u origin main', targetPath);
-        log('Pushed to GitHub');
-
-        vscode.window.showInformationMessage('Your work backs up to GitHub automatically.');
-      } catch (error) {
-        const msg = error instanceof Error ? error.message : String(error);
-        log(`GitHub setup failed: ${msg}`);
-        if (msg.includes('already exists')) {
-          vscode.window.showErrorMessage(
-            'A remote named "origin" already exists. Remove it first, or use a different setup.'
-          );
-        } else {
-          vscode.window.showErrorMessage(
-            `GitHub setup failed: ${msg}. When you push, sign in with your GitHub username and a Personal Access Token (create one at github.com/settings/tokens).`
-          );
-        }
-      }
+      showGitHubSetupPanel(context, targetPath);
     }
   );
 
