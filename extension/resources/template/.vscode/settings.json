@@ -9,9 +9,12 @@
   "files.autoSave": "afterDelay",
   "files.autoSaveDelay": 1000,
   "workbench.colorTheme": "Cursor Light",
-  "workbench.activityBar.location": "hidden",
-  "workbench.sideBar.location": "right",
-  "workbench.startupEditor": "none",
+  "workbench.activityBar.location": "left",
+  "workbench.sideBar.location": "left",
+  "workbench.startupEditor": "readme",
+  "workbench.editorAssociations": {
+    "*.md": "markdownForHumans.editor"
+  },
   "cursor.editor.layout": "editor",
   "editor.fontSize": 14,
   "editor.lineHeight": 1.4,
