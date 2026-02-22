@@ -30,7 +30,7 @@ To set it up, you download and install Cursor - free.
 
 Then you install the Zendoc extension - free.
 
-Then you create a github account, give your first repo a name and copy/paste the URL.
+Then you're guided to create a github account, give your first repo a name and copy/paste the URL.
 
 That's it.
 
