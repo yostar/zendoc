@@ -39,5 +39,6 @@
   "cursor.experimental.agentUi": "disabled",
   "gitdoc.enabled": true,
   "gitdoc.autoCommitDelay": 10000,
-  "gitdoc.autopush": "onCommit"
+  "gitdoc.autopush": "onCommit",
+  "gitdoc.commitValidationLevel": "none"
 }
