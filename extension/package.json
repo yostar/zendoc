@@ -3,7 +3,7 @@
   "displayName": "Zendoc",
   "description": "Distraction-free writing, powered by AI. Turns Cursor into a writing platform with auto-backup to GitHub.",
   "version": "0.1.0",
-  "publisher": "zendoc",
+  "publisher": "YMSDynamics",
   "engines": {
     "vscode": "^1.85.0"
   },
