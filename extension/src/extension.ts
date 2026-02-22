@@ -56,17 +56,10 @@ async function copyDir(src: string, dest: string): Promise<void> {
   }
 }
 
-async function runCommand(
-  cmd: string,
-  cwd?: string,
-  env?: NodeJS.ProcessEnv
-): Promise<{ stdout: string; stderr: string }> {
+async function runCommand(cmd: string, cwd?: string): Promise<{ stdout: string; stderr: string }> {
   log(`Running: ${cmd}`);
   try {
-    const result = await execAsync(cmd, {
-      cwd,
-      env: env ?? getEnvWithCommonPaths(),
-    });
+    const result = await execAsync(cmd, { cwd });
     if (result.stdout) log(`stdout: ${result.stdout.trim()}`);
     if (result.stderr) log(`stderr: ${result.stderr.trim()}`);
     return result;
@@ -75,26 +68,6 @@ async function runCommand(
     const msg = err.stderr || err.stdout || String(error);
     log(`Error: ${msg}`);
     throw new Error(msg);
-  }
-}
-
-function getEnvWithCommonPaths(): NodeJS.ProcessEnv {
-  const pathEnv = process.env.PATH || '';
-  const extraPaths =
-    process.platform === 'darwin'
-      ? '/opt/homebrew/bin:/usr/local/bin:'
-      : process.platform === 'win32'
-        ? ''
-        : '/usr/local/bin:';
-  return { ...process.env, PATH: extraPaths + pathEnv };
-}
-
-async function isGhInstalled(): Promise<boolean> {
-  try {
-    await execAsync('gh --version', { env: getEnvWithCommonPaths() });
-    return true;
-  } catch {
-    return false;
   }
 }
 
@@ -283,23 +256,8 @@ export function activate(context: vscode.ExtensionContext) {
         return;
       }
 
-      const ghInstalled = await isGhInstalled();
-      if (!ghInstalled) {
-        const install = await vscode.window.showErrorMessage(
-          'GitHub CLI is needed for one-click setup.',
-          process.platform === 'darwin' ? 'Install with Homebrew' : 'Open install page',
-          'Cancel'
-        );
-        if (install === 'Install with Homebrew') {
-          const term = vscode.window.createTerminal({ name: 'Install GitHub CLI' });
-          term.show();
-          term.sendText('brew install gh');
-          vscode.window.showInformationMessage(
-            'Running "brew install gh" in the terminal. When it finishes, run "Set up cloud backup" again.'
-          );
-        } else if (install === 'Open install page') {
-          vscode.env.openExternal(vscode.Uri.parse('https://cli.github.com/'));
-        }
+      if (!fs.existsSync(path.join(targetPath, '.git'))) {
+        vscode.window.showErrorMessage('This folder is not a git repo. Create a workspace first.');
         return;
       }
 
@@ -307,26 +265,61 @@ export function activate(context: vscode.ExtensionContext) {
       log('Starting GitHub setup...');
 
       try {
-        const connect = await vscode.window.showInformationMessage(
-          'Your browser will open. Sign in to GitHub once—your work will back up automatically from then on.',
-          'Connect GitHub',
+        const action = await vscode.window.showInformationMessage(
+          'Connect to GitHub: Create an empty repo at github.com/new (no README, .gitignore, or license), then paste the URL here.',
+          'Open GitHub',
+          'Paste URL',
           'Cancel'
         );
-        if (connect !== 'Connect GitHub') return;
+        if (!action || action === 'Cancel') return;
+        if (action === 'Open GitHub') {
+          vscode.env.openExternal(vscode.Uri.parse('https://github.com/new'));
+        }
 
-        const env = getEnvWithCommonPaths();
-        await runCommand('gh auth login --web', targetPath, env);
-        const workspaceName = path.basename(targetPath);
-        await runCommand(
-          `gh repo create ${workspaceName} --private --source=. --push`,
-          targetPath,
-          env
-        );
+        const repoUrl = await vscode.window.showInputBox({
+          prompt: 'Paste your GitHub repo URL',
+          placeHolder: 'https://github.com/username/repo-name.git',
+          validateInput: (value) => {
+            const trimmed = value?.trim() || '';
+            if (!trimmed) return 'Enter the repo URL';
+            if (!/^https:\/\/github\.com\/[\w.-]+\/[\w.-]+\.git$/.test(trimmed) && !/^https:\/\/github\.com\/[\w.-]+\/[\w.-]+$/.test(trimmed)) {
+              return 'Use a URL like https://github.com/username/repo-name or https://github.com/username/repo-name.git';
+            }
+            return null;
+          },
+        });
+
+        if (!repoUrl?.trim()) return;
+
+        const url = repoUrl.trim().replace(/\.git$/, '') + '.git';
+
+        await runCommand(`git remote add origin ${url}`, targetPath);
+        log('Remote added');
+
+        // Ensure we have a commit and main branch
+        try {
+          await runCommand('git rev-parse HEAD', targetPath);
+        } catch {
+          await runCommand('git add .', targetPath);
+          await runCommand('git commit -m "Initial commit"', targetPath);
+        }
+        await runCommand('git branch -M main', targetPath);
+        await runCommand('git push -u origin main', targetPath);
+        log('Pushed to GitHub');
+
         vscode.window.showInformationMessage('Your work backs up to GitHub automatically.');
       } catch (error) {
         const msg = error instanceof Error ? error.message : String(error);
         log(`GitHub setup failed: ${msg}`);
-        vscode.window.showErrorMessage(`GitHub setup failed: ${msg}`);
+        if (msg.includes('already exists')) {
+          vscode.window.showErrorMessage(
+            'A remote named "origin" already exists. Remove it first, or use a different setup.'
+          );
+        } else {
+          vscode.window.showErrorMessage(
+            `GitHub setup failed: ${msg}. When you push, sign in with your GitHub username and a Personal Access Token (create one at github.com/settings/tokens).`
+          );
+        }
       }
     }
   );
