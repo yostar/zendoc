@@ -165,6 +165,7 @@ zendoc/
 | `workbench.colorTheme` | `Cursor Light` | Theme |
 | `workbench.activityBar.location` | `hidden` | Hide activity bar |
 | `workbench.sideBar.location` | `right` | Sidebar on right |
+| `editor.fontFamily` | `Georgia, 'Times New Roman', serif` | Serif font for long-form writing |
 | `editor.fontSize` | `14` | Readable font |
 | `editor.lineHeight` | `1.4` | Line spacing |
 | `editor.wordWrap` | `on` | Wrap lines |
