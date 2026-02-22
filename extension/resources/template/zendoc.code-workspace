@@ -5,11 +5,12 @@
     }
   ],
   "settings": {
+    "workbench.colorTheme": "Cursor Light",
     "workbench.activityBar.location": "left",
     "workbench.sideBar.location": "left",
-    "workbench.startupEditor": "none",
-    "cursor.editor.layout": "editor",
-    "cursor.experimental.agentUi": "disabled",
-    "workbench.panel.defaultLocation": "bottom"
+    "workbench.startupEditor": "readme",
+    "workbench.editorAssociations": {
+      "*.md": "markdownForHumans.editor"
+    }
   }
 }

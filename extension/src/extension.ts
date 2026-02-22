@@ -190,10 +190,9 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.window.showInformationMessage('Creating Zendoc profile and opening workspace...');
 
         const workspaceFile = path.join(workspacePath, 'zendoc.code-workspace');
-        const welcomeFile = path.join(workspacePath, 'Welcome.md');
 
-        // Create the Zendoc profile by opening Cursor with workspace file + Welcome.md (profile created if needed)
-        exec(`"${cliPath}" "${workspaceFile}" "${welcomeFile}" --profile "${ZENDOC_PROFILE}"`, (err) => {
+        // Open workspace file (settings ensure Explorer left, theme, Markdown for Humans; readme opens README.md)
+        exec(`"${cliPath}" "${workspaceFile}" --profile "${ZENDOC_PROFILE}"`, (err) => {
           if (err) {
             log(`Open failed: ${err}`);
             vscode.window.showInformationMessage(

@@ -164,9 +164,8 @@ function activate(context) {
                 log(`Using CLI: ${cliPath} (exists: ${cliExists})`);
                 vscode.window.showInformationMessage('Creating Zendoc profile and opening workspace...');
                 const workspaceFile = path.join(workspacePath, 'zendoc.code-workspace');
-                const welcomeFile = path.join(workspacePath, 'Welcome.md');
-                // Create the Zendoc profile by opening Cursor with workspace file + Welcome.md (profile created if needed)
-                (0, child_process_1.exec)(`"${cliPath}" "${workspaceFile}" "${welcomeFile}" --profile "${ZENDOC_PROFILE}"`, (err) => {
+                // Open workspace file (settings ensure Explorer left, theme, Markdown for Humans; readme opens README.md)
+                (0, child_process_1.exec)(`"${cliPath}" "${workspaceFile}" --profile "${ZENDOC_PROFILE}"`, (err) => {
                     if (err) {
                         log(`Open failed: ${err}`);
                         vscode.window.showInformationMessage(`Workspace created at ${workspacePath}. Open it manually with File > Open Folder.`);
