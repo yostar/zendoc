@@ -166,6 +166,15 @@ function getGitHubSetupHtml(): string {
 </html>`;
 }
 
+async function hasRemoteOrigin(workspacePath: string): Promise<boolean> {
+  try {
+    await execAsync('git remote get-url origin', { cwd: workspacePath });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 async function runGitHubConnect(targetPath: string, repoUrl: string): Promise<void> {
   const url = repoUrl.trim().replace(/\.git$/, '') + '.git';
   await runCommand(`git remote add origin ${url}`, targetPath);
@@ -248,6 +257,9 @@ function applyZendocLayout(context: vscode.ExtensionContext): void {
           try {
             await vscode.commands.executeCommand('markdownForHumans.openFile', welcomePath);
           } catch (_) {}
+        }
+        if (!(await hasRemoteOrigin(folder.uri.fsPath))) {
+          showGitHubSetupPanel(context, folder.uri.fsPath);
         }
       } catch (e) {
         log(`Layout apply failed: ${e}`);
@@ -379,6 +391,8 @@ export function activate(context: vscode.ExtensionContext) {
             await vscode.window.showTextDocument(doc, { preview: false });
           } catch (_) {}
         }
+
+        showGitHubSetupPanel(context, workspacePath);
 
         vscode.window.showInformationMessage('Your workspace is ready. Check Welcome.md to get started.');
       } catch (error) {

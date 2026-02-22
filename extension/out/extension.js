@@ -167,6 +167,15 @@ function getGitHubSetupHtml() {
 </body>
 </html>`;
 }
+async function hasRemoteOrigin(workspacePath) {
+    try {
+        await execAsync('git remote get-url origin', { cwd: workspacePath });
+        return true;
+    }
+    catch {
+        return false;
+    }
+}
 async function runGitHubConnect(targetPath, repoUrl) {
     const url = repoUrl.trim().replace(/\.git$/, '') + '.git';
     await runCommand(`git remote add origin ${url}`, targetPath);
@@ -193,6 +202,7 @@ function showGitHubSetupPanel(context, targetPath) {
             try {
                 await runGitHubConnect(targetPath, message.url);
                 log('Pushed to GitHub');
+                outputChannel?.hide();
                 panel.webview.postMessage({ type: 'success', message: 'Your work backs up to GitHub automatically.' });
                 vscode.window.showInformationMessage('Your work backs up to GitHub automatically.');
             }
@@ -247,11 +257,9 @@ function applyZendocLayout(context) {
                     }
                     catch (_) { }
                 }
-                // Ensure GitDoc is enabled for this workspace
-                try {
-                    await vscode.commands.executeCommand('gitdoc.enable');
+                if (!(await hasRemoteOrigin(folder.uri.fsPath))) {
+                    showGitHubSetupPanel(context, folder.uri.fsPath);
                 }
-                catch (_) { }
             }
             catch (e) {
                 log(`Layout apply failed: ${e}`);
@@ -365,15 +373,7 @@ function activate(context) {
                     }
                     catch (_) { }
                 }
-                // Enable GitDoc so auto-commit works (setting alone may not activate it)
-                await new Promise((resolve) => setTimeout(resolve, 500));
-                try {
-                    await vscode.commands.executeCommand('gitdoc.enable');
-                    log('GitDoc enabled');
-                }
-                catch (e) {
-                    log(`GitDoc enable: ${e}`);
-                }
+                showGitHubSetupPanel(context, workspacePath);
                 vscode.window.showInformationMessage('Your workspace is ready. Check Welcome.md to get started.');
             }
             catch (error) {
