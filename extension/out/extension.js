@@ -109,6 +109,12 @@ function applyZendocLayout(context) {
                     await vscode.window.showTextDocument(otherDoc, { preview: false });
                     await new Promise((resolve) => setTimeout(resolve, 150));
                     await vscode.commands.executeCommand('markdownForHumans.openFile', welcomePath);
+                    const gitignoreTab = vscode.window.tabGroups.all
+                        .flatMap((g) => g.tabs)
+                        .find((t) => t.input instanceof vscode.TabInputText && t.input.uri.fsPath === gitignorePath.fsPath);
+                    if (gitignoreTab) {
+                        await vscode.window.tabGroups.close(gitignoreTab);
+                    }
                 }
                 catch (_) {
                     try {
@@ -208,6 +214,13 @@ function activate(context) {
                         await vscode.window.showTextDocument(otherDoc, { preview: false });
                         await new Promise((resolve) => setTimeout(resolve, 150));
                         await vscode.commands.executeCommand('markdownForHumans.openFile', welcomePath);
+                        // Close the .gitignore tab used for the workaround
+                        const gitignoreTab = vscode.window.tabGroups.all
+                            .flatMap((g) => g.tabs)
+                            .find((t) => t.input instanceof vscode.TabInputText && t.input.uri.fsPath === gitignorePath.fsPath);
+                        if (gitignoreTab) {
+                            await vscode.window.tabGroups.close(gitignoreTab);
+                        }
                     }
                     catch (_) {
                         // .gitignore may not exist; try reopening Welcome anyway
