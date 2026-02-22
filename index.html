@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zendoc — Distraction-free writing, powered by AI</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            serif: ['Cormorant Garamond', 'Georgia', 'serif'],
+            sans: ['DM Sans', 'system-ui', 'sans-serif'],
+          },
+          colors: {
+            paper: '#faf8f5',
+            ink: '#1a1816',
+            sage: '#5c6b5a',
+            warm: '#8b7355',
+          },
+        },
+      },
+    }
+  </script>
+  <style>
+    html { scroll-behavior: smooth; }
+  </style>
+</head>
+<body class="bg-paper text-ink font-sans antialiased min-h-screen">
+  <main class="max-w-2xl mx-auto px-6 py-16 md:py-24">
+    <!-- Logo & Hero -->
+    <header class="text-center mb-16">
+      <img src="assets/zendoc-logo.png" alt="Zendoc" class="h-20 md:h-24 mx-auto mb-8 opacity-90">
+      <h1 class="font-serif text-4xl md:text-5xl font-semibold text-ink mb-4">
+        Distraction-free writing,<br>
+        <span class="italic font-normal text-warm">powered by AI</span>
+      </h1>
+      <p class="text-lg text-ink/80 max-w-md mx-auto mt-6">
+        Two steps. No setup. Your work backs up to GitHub automatically.
+      </p>
+    </header>
+
+    <!-- CTAs -->
+    <section class="flex flex-col sm:flex-row gap-4 justify-center mb-20">
+      <a href="https://cursor.com" target="_blank" rel="noopener" class="inline-flex items-center justify-center px-8 py-4 bg-ink text-paper font-medium rounded-lg hover:bg-ink/90 transition-colors">
+        Download Cursor
+      </a>
+      <a href="https://marketplace.visualstudio.com/items?itemName=zendoc.zendoc" target="_blank" rel="noopener" class="inline-flex items-center justify-center px-8 py-4 border-2 border-ink text-ink font-medium rounded-lg hover:bg-ink hover:text-paper transition-colors">
+        Install Zendoc
+      </a>
+    </section>
+
+    <!-- Subtext -->
+    <p class="text-center text-ink/70 text-sm max-w-lg mx-auto mb-24">
+      A notification will appear—click <strong>Create workspace</strong>. The wizard uses native dialogs to create your workspace and connect it to GitHub. Your work backs up automatically.
+    </p>
+
+    <!-- Under the Hood -->
+    <section class="border-t border-ink/10 pt-16">
+      <h2 class="font-serif text-2xl font-semibold text-ink mb-2">Under the hood</h2>
+      <p class="text-ink/70 mb-8">For the curious: what's actually going on.</p>
+
+      <div class="space-y-6 text-ink/80">
+        <div>
+          <h3 class="font-medium text-ink mb-1">A plugin that turns Cursor into a writing platform</h3>
+          <p>Zendoc is a VS Code extension. It doesn't replace Cursor—it configures it. One wizard creates a workspace, connects GitHub, installs extensions, and tunes the AI. You get a dedicated "Zendoc" profile so your coding setup stays untouched.</p>
+        </div>
+
+        <div>
+          <h3 class="font-medium text-ink mb-1">GitHub backup, automatic</h3>
+          <p>The wizard runs <code class="bg-ink/5 px-1.5 py-0.5 rounded text-sm">gh auth login</code> and <code class="bg-ink/5 px-1.5 py-0.5 rounded text-sm">gh repo create</code>. Your work lives in a private repo. GitDoc auto-commits and auto-pushes on save. Your history is always backed up.</p>
+        </div>
+
+        <div>
+          <h3 class="font-medium text-ink mb-2">Extensions that get installed</h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="border-b border-ink/10">
+                  <th class="text-left py-2 font-medium text-ink">Extension</th>
+                  <th class="text-left py-2 font-medium text-ink">What it does</th>
+                </tr>
+              </thead>
+              <tbody class="text-ink/80">
+                <tr class="border-b border-ink/5">
+                  <td class="py-3 font-medium text-ink">GitDoc</td>
+                  <td class="py-3">Auto-commits and auto-pushes to GitHub on save. No manual git.</td>
+                </tr>
+                <tr class="border-b border-ink/5">
+                  <td class="py-3 font-medium text-ink">Markdown All in One</td>
+                  <td class="py-3">Keyboard shortcuts, table of contents, and Markdown features.</td>
+                </tr>
+                <tr class="border-b border-ink/5">
+                  <td class="py-3 font-medium text-ink">Markdown for Humans</td>
+                  <td class="py-3">WYSIWYG editor. Use "Open With..." when you want a visual view.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div>
+          <h3 class="font-medium text-ink mb-1">The AI acts as a librarian, not a coder</h3>
+          <p>Cursor rules tell the agent to behave as a Senior Document Librarian and Content Strategist: clean hierarchies, YAML frontmatter, professional prose. No "developer speak."</p>
+        </div>
+
+        <div>
+          <h3 class="font-medium text-ink mb-1">Project memory via AGENTS.md</h3>
+          <p>Each project has a hidden <code class="bg-ink/5 px-1.5 py-0.5 rounded text-sm">AGENTS.md</code> file. Tell the agent things to remember—"add instruction: always use British spelling" or "edit instructions: this is a novel about X." The agent reads and updates these files. Memory is per-project and persists.</p>
+        </div>
+
+        <div>
+          <h3 class="font-medium text-ink mb-1">The rest</h3>
+          <p>Auto-save (1 second delay), minimal UI (no line numbers, no minimap, sidebar on the right), dotfiles hidden. Everything tuned for writing.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="mt-24 pt-8 border-t border-ink/10 text-center text-sm text-ink/50">
+      <p>Zendoc — A writing environment built on Cursor.</p>
+    </footer>
+  </main>
+</body>
+</html>
