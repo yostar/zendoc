@@ -119,6 +119,8 @@ The installer creates a workspace with this structure:
 ```
 zendoc/
 ├── Welcome.md          ← Workspace README / first-run onboarding
+├── assets/
+│   └── zendoc-logo.png
 ├── .vscode/
 │   ├── settings.json
 │   ├── extensions.json
