@@ -145,14 +145,21 @@ export function activate(context: vscode.ExtensionContext) {
         const cliExists = cliPath.includes('/') ? fs.existsSync(cliPath) : true;
         log(`Using CLI: ${cliPath} (exists: ${cliExists})`);
 
-        vscode.window.showInformationMessage('Installing extensions and opening workspace...');
+        vscode.window.showInformationMessage('Opening workspace...');
 
-        // 1. Create profile + install extensions first (profile created by opening; extensions must exist before folder opens)
-        exec(`"${cliPath}" --profile "${ZENDOC_PROFILE}"`, (err) => {
-          if (err) log(`Profile creation: ${err}`);
+        // 1. Open folder FIRST - workspace settings (theme, layout) apply immediately, no empty-window flash
+        exec(`"${cliPath}" "${workspacePath}" --profile "${ZENDOC_PROFILE}"`, (err) => {
+          if (err) {
+            log(`Open failed: ${err}`);
+            vscode.window.showInformationMessage(
+              `Workspace created at ${workspacePath}. Open it manually with File > Open Folder.`
+            );
+          }
         });
-        await new Promise((resolve) => setTimeout(resolve, 4000));
 
+        // 2. Install extensions after profile exists (folder open creates it)
+        await new Promise((resolve) => setTimeout(resolve, 5000));
+        vscode.window.showInformationMessage('Installing extensions...');
         for (const extId of REQUIRED_EXTENSIONS) {
           try {
             await runCommand(`"${cliPath}" --install-extension ${extId} --profile "${ZENDOC_PROFILE}"`);
@@ -170,18 +177,7 @@ export function activate(context: vscode.ExtensionContext) {
           }
         }
 
-        // 2. Open FOLDER in same window - replaces empty view; folder open shows Explorer by default
-        vscode.window.showInformationMessage('Opening workspace...');
-        exec(`"${cliPath}" "${workspacePath}" --profile "${ZENDOC_PROFILE}" --reuse-window`, (err) => {
-          if (err) {
-            log(`Open failed: ${err}`);
-            vscode.window.showInformationMessage(
-              `Workspace created at ${workspacePath}. Open it manually with File > Open Folder.`
-            );
-          }
-        });
-
-        vscode.window.showInformationMessage('Your workspace is ready. A new window will open—check Welcome.md to get started.');
+        vscode.window.showInformationMessage('Your workspace is ready. Extensions installed—check Welcome.md to get started.');
       } catch (error) {
         const msg = error instanceof Error ? error.message : String(error);
         log(`Fatal error: ${msg}`);
