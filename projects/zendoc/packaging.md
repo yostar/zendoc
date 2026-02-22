@@ -145,6 +145,8 @@ zendoc/
 
 **Template bundling:** The workspace template is bundled inside the extension. The extension copies it to the user's chosen location.
 
+**Brand assets:** Logo and icons live in `assets/` at repo root. Used by the extension (marketplace icon), homepage, and docs.
+
 ---
 
 ## 7. Configuration Files
