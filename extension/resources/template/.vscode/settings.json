@@ -36,9 +36,5 @@
   "explorer.decorations.badges": true,
   "explorer.decorations.colors": false,
   "workbench.iconTheme": "vs-minimal",
-  "cursor.experimental.agentUi": "disabled",
-  "gitdoc.enabled": true,
-  "gitdoc.autoCommitDelay": 10000,
-  "gitdoc.autopush": "onCommit",
-  "gitdoc.commitValidationLevel": "none"
+  "cursor.experimental.agentUi": "disabled"
 }
