@@ -116,11 +116,6 @@ function applyZendocLayout(context) {
                     }
                     catch (_) { }
                 }
-                // Hide agents sidebar (Option+Cmd+S toggle)
-                try {
-                    await vscode.commands.executeCommand('workbench.action.toggleSecondarySideBar');
-                }
-                catch (_) { }
             }
             catch (e) {
                 log(`Layout apply failed: ${e}`);
@@ -199,7 +194,7 @@ function activate(context) {
                 // 2. Open folder in CURRENT window so we can run layout commands
                 const uri = vscode.Uri.file(workspacePath);
                 await vscode.commands.executeCommand('vscode.openFolder', uri);
-                // 3. Run workbench.view.explorer, open Welcome.md, fix initial render, hide agents sidebar
+                // 3. Run workbench.view.explorer, open Welcome.md, fix initial render
                 await new Promise((resolve) => setTimeout(resolve, 800));
                 const welcomePath = vscode.Uri.joinPath(uri, 'Welcome.md');
                 const gitignorePath = vscode.Uri.joinPath(uri, '.gitignore');
@@ -218,11 +213,6 @@ function activate(context) {
                         // .gitignore may not exist; try reopening Welcome anyway
                         await vscode.commands.executeCommand('markdownForHumans.openFile', welcomePath);
                     }
-                    // Hide agents sidebar (Option+Cmd+S toggle)
-                    try {
-                        await vscode.commands.executeCommand('workbench.action.toggleSecondarySideBar');
-                    }
-                    catch (_) { }
                 }
                 catch (e) {
                     log(`Layout apply failed: ${e}`);

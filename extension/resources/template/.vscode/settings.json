@@ -11,7 +11,7 @@
   "workbench.colorTheme": "Cursor Light",
   "workbench.activityBar.location": "left",
   "workbench.sideBar.location": "left",
-  "workbench.startupEditor": "readme",
+  "workbench.startupEditor": "none",
   "workbench.editorAssociations": {
     "*.md": "markdownForHumans.editor"
   },
