@@ -33,8 +33,11 @@
   "editor.renderWhitespace": "none",
   "editor.guides.bracketPairs": false,
   "workbench.statusBar.visible": false,
-  "explorer.decorations.badges": false,
+  "explorer.decorations.badges": true,
   "explorer.decorations.colors": false,
   "workbench.iconTheme": "vs-minimal",
-  "cursor.experimental.agentUi": "disabled"
+  "cursor.experimental.agentUi": "disabled",
+  "gitdoc.enabled": true,
+  "gitdoc.autoCommitDelay": 10000,
+  "gitdoc.autopush": "onCommit"
 }
