@@ -133,15 +133,13 @@ function activate(context) {
                 const cliPath = getCliPath();
                 const cliExists = cliPath.includes('/') ? fs.existsSync(cliPath) : true;
                 log(`Using CLI: ${cliPath} (exists: ${cliExists})`);
-                vscode.window.showInformationMessage('Creating Zendoc profile and installing extensions (a window may open briefly)...');
-                // 1. Create profile by opening Cursor briefly (profile is created if it doesn't exist)
+                vscode.window.showInformationMessage('Installing extensions and opening workspace...');
+                // 1. Create profile + install extensions first (profile created by opening; extensions must exist before folder opens)
                 (0, child_process_1.exec)(`"${cliPath}" --profile "${ZENDOC_PROFILE}"`, (err) => {
                     if (err)
                         log(`Profile creation: ${err}`);
                 });
-                await new Promise((resolve) => setTimeout(resolve, 5000));
-                // 2. Install extensions BEFORE opening workspace (so layout/extensions apply when window loads)
-                vscode.window.showInformationMessage('Installing extensions (GitDoc, Markdown All in One, Markdown for Humans)...');
+                await new Promise((resolve) => setTimeout(resolve, 4000));
                 for (const extId of REQUIRED_EXTENSIONS) {
                     try {
                         await runCommand(`"${cliPath}" --install-extension ${extId} --profile "${ZENDOC_PROFILE}"`);
@@ -156,10 +154,9 @@ function activate(context) {
                         });
                     }
                 }
-                // 3. Open workspace in the same window (--reuse-window) so it replaces the empty profile window
-                const workspaceFile = path.join(workspacePath, 'zendoc.code-workspace');
+                // 2. Open FOLDER in same window - replaces empty view; folder open shows Explorer by default
                 vscode.window.showInformationMessage('Opening workspace...');
-                (0, child_process_1.exec)(`"${cliPath}" "${workspaceFile}" --profile "${ZENDOC_PROFILE}" --reuse-window`, (err) => {
+                (0, child_process_1.exec)(`"${cliPath}" "${workspacePath}" --profile "${ZENDOC_PROFILE}" --reuse-window`, (err) => {
                     if (err) {
                         log(`Open failed: ${err}`);
                         vscode.window.showInformationMessage(`Workspace created at ${workspacePath}. Open it manually with File > Open Folder.`);

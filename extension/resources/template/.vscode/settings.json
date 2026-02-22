@@ -32,5 +32,8 @@
   "explorer.compactFolders": false,
   "editor.renderWhitespace": "none",
   "editor.guides.bracketPairs": false,
-  "workbench.statusBar.visible": false
+  "workbench.statusBar.visible": false,
+  "explorer.decorations.badges": false,
+  "explorer.decorations.colors": false,
+  "workbench.iconTheme": "vs-minimal"
 }

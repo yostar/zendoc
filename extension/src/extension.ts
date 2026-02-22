@@ -145,16 +145,14 @@ export function activate(context: vscode.ExtensionContext) {
         const cliExists = cliPath.includes('/') ? fs.existsSync(cliPath) : true;
         log(`Using CLI: ${cliPath} (exists: ${cliExists})`);
 
-        vscode.window.showInformationMessage('Creating Zendoc profile and installing extensions (a window may open briefly)...');
+        vscode.window.showInformationMessage('Installing extensions and opening workspace...');
 
-        // 1. Create profile by opening Cursor briefly (profile is created if it doesn't exist)
+        // 1. Create profile + install extensions first (profile created by opening; extensions must exist before folder opens)
         exec(`"${cliPath}" --profile "${ZENDOC_PROFILE}"`, (err) => {
           if (err) log(`Profile creation: ${err}`);
         });
-        await new Promise((resolve) => setTimeout(resolve, 5000));
+        await new Promise((resolve) => setTimeout(resolve, 4000));
 
-        // 2. Install extensions BEFORE opening workspace (so layout/extensions apply when window loads)
-        vscode.window.showInformationMessage('Installing extensions (GitDoc, Markdown All in One, Markdown for Humans)...');
         for (const extId of REQUIRED_EXTENSIONS) {
           try {
             await runCommand(`"${cliPath}" --install-extension ${extId} --profile "${ZENDOC_PROFILE}"`);
@@ -172,10 +170,9 @@ export function activate(context: vscode.ExtensionContext) {
           }
         }
 
-        // 3. Open workspace in the same window (--reuse-window) so it replaces the empty profile window
-        const workspaceFile = path.join(workspacePath, 'zendoc.code-workspace');
+        // 2. Open FOLDER in same window - replaces empty view; folder open shows Explorer by default
         vscode.window.showInformationMessage('Opening workspace...');
-        exec(`"${cliPath}" "${workspaceFile}" --profile "${ZENDOC_PROFILE}" --reuse-window`, (err) => {
+        exec(`"${cliPath}" "${workspacePath}" --profile "${ZENDOC_PROFILE}" --reuse-window`, (err) => {
           if (err) {
             log(`Open failed: ${err}`);
             vscode.window.showInformationMessage(
