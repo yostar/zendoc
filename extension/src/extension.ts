@@ -80,6 +80,26 @@ async function isGhInstalled(): Promise<boolean> {
   }
 }
 
+function applyZendocLayout(context: vscode.ExtensionContext): void {
+  const folder = vscode.workspace.workspaceFolders?.[0];
+  if (!folder) return;
+
+  const welcomePath = vscode.Uri.joinPath(folder.uri, 'Welcome.md');
+  fs.access(welcomePath.fsPath, fs.constants.F_OK, (err) => {
+    if (err) return; // Not a Zendoc workspace
+    // Delay so workspace is fully loaded
+    setTimeout(async () => {
+      try {
+        await vscode.commands.executeCommand('workbench.view.explorer');
+        const doc = await vscode.workspace.openTextDocument(welcomePath);
+        await vscode.window.showTextDocument(doc, { preview: false });
+      } catch (e) {
+        log(`Layout apply failed: ${e}`);
+      }
+    }, 500);
+  });
+}
+
 export function activate(context: vscode.ExtensionContext) {
   console.log('[Zendoc] activate() called');
   try {
@@ -147,18 +167,23 @@ export function activate(context: vscode.ExtensionContext) {
 
         vscode.window.showInformationMessage('Opening workspace...');
 
-        // 1. Open folder FIRST - workspace settings (theme, layout) apply immediately, no empty-window flash
-        exec(`"${cliPath}" "${workspacePath}" --profile "${ZENDOC_PROFILE}"`, (err) => {
-          if (err) {
-            log(`Open failed: ${err}`);
-            vscode.window.showInformationMessage(
-              `Workspace created at ${workspacePath}. Open it manually with File > Open Folder.`
-            );
-          }
-        });
+        // 1. Open folder in CURRENT window so we can run layout commands (same window = extension can run Cmd+B + open Welcome.md)
+        const uri = vscode.Uri.file(workspacePath);
+        await vscode.commands.executeCommand('vscode.openFolder', uri);
 
-        // 2. Install extensions after profile exists (folder open creates it)
-        await new Promise((resolve) => setTimeout(resolve, 5000));
+        // 2. Run workbench.view.explorer (show Explorer) and open Welcome.md
+        await new Promise((resolve) => setTimeout(resolve, 800));
+        try {
+          await vscode.commands.executeCommand('workbench.view.explorer');
+          const welcomePath = vscode.Uri.joinPath(uri, 'Welcome.md');
+          const doc = await vscode.workspace.openTextDocument(welcomePath);
+          await vscode.window.showTextDocument(doc, { preview: false });
+        } catch (e) {
+          log(`Layout apply failed: ${e}`);
+        }
+
+        // 3. Install extensions to Zendoc profile (for when user opens workspace in new window with profile)
+        await new Promise((resolve) => setTimeout(resolve, 2000));
         vscode.window.showInformationMessage('Installing extensions...');
         for (const extId of REQUIRED_EXTENSIONS) {
           try {
@@ -177,7 +202,7 @@ export function activate(context: vscode.ExtensionContext) {
           }
         }
 
-        vscode.window.showInformationMessage('Your workspace is ready. Extensions installed—check Welcome.md to get started.');
+        vscode.window.showInformationMessage('Your workspace is ready. Check Welcome.md to get started.');
       } catch (error) {
         const msg = error instanceof Error ? error.message : String(error);
         log(`Fatal error: ${msg}`);
@@ -230,6 +255,9 @@ export function activate(context: vscode.ExtensionContext) {
   );
 
   context.subscriptions.push(createWorkspace, setupBackup);
+
+  // When in a Zendoc workspace, run commands to show Explorer and open Welcome.md
+  applyZendocLayout(context);
 
   // TODO: Restore "show once" logic when done testing
   // const hasShownWelcome = context.globalState.get<boolean>('zendoc.welcomeShown');
