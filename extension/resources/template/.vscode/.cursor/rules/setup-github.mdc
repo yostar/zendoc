@@ -1,0 +1,8 @@
+---
+description: Run GitHub backup setup when user asks
+alwaysApply: true
+---
+
+# Setup GitHub
+
+When the user says **setup github** (or similar: "set up github", "connect github", "github backup", "setup cloud backup"), run the command `zendoc.setupBackup` to start the GitHub connection flow.
