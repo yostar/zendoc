@@ -267,9 +267,14 @@ export function activate(context: vscode.ExtensionContext) {
 
       const ghInstalled = await isGhInstalled();
       if (!ghInstalled) {
-        vscode.window.showErrorMessage(
-          'GitHub CLI (gh) is required. Install it with: brew install gh'
+        const install = await vscode.window.showErrorMessage(
+          'GitHub CLI is needed for one-click setup. Install it, then try again.',
+          'Open install page',
+          'Cancel'
         );
+        if (install === 'Open install page') {
+          vscode.env.openExternal(vscode.Uri.parse('https://cli.github.com/'));
+        }
         return;
       }
 
@@ -278,7 +283,7 @@ export function activate(context: vscode.ExtensionContext) {
 
       try {
         const connect = await vscode.window.showInformationMessage(
-          'Your browser will open. Sign in to GitHub, then return here.',
+          'Your browser will open. Sign in to GitHub once—your work will back up automatically from then on.',
           'Connect GitHub',
           'Cancel'
         );
