@@ -271,8 +271,10 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(createWorkspace, setupBackup);
 
   const hasShownWelcome = context.globalState.get<boolean>('zendoc.welcomeShown');
+  console.log('[Zendoc] hasShownWelcome:', hasShownWelcome);
   if (!hasShownWelcome) {
     context.globalState.update('zendoc.welcomeShown', true);
+    log('Showing first-run notification');
     vscode.window
       .showInformationMessage('Create your Zendoc workspace', 'Create workspace')
       .then((choice) => {
@@ -280,6 +282,8 @@ export function activate(context: vscode.ExtensionContext) {
           vscode.commands.executeCommand('zendoc.createWorkspace');
         }
       });
+  } else {
+    log('Skipping notification (already shown before)');
   }
   } catch (err) {
     console.error('[Zendoc] Activation failed:', err);
