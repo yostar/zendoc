@@ -245,7 +245,7 @@ GitHub setup runs as part of `zendoc.createWorkspace`, not as a separate step:
 ## 12. Extension Publishing
 
 - **Marketplace:** Publish to VS Code Marketplace. Cursor uses the same marketplace, so the extension will appear in Cursor's Extensions panel.
-- **Extension ID:** `YMSDynamics.zendoc`
+- **Extension ID:** `YMSDynamics.yms-zendoc`
 
 ---
 

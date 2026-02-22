@@ -17,7 +17,7 @@ The website should hide complexity. Users see only two steps. Everything else is
 **Steps:**
 
 1. **[Download Cursor](https://cursor.com)** — The app Zendoc runs inside.
-2. **[Install Zendoc](https://marketplace.visualstudio.com/items?itemName=YMSDynamics.zendoc)** — Opens Cursor to the extension page. Click Install.
+2. **[Install Zendoc](https://marketplace.visualstudio.com/items?itemName=YMSDynamics.yms-zendoc)** — Opens Cursor to the extension page. Click Install.
 
 **Subtext:** A notification will appear—click **Create workspace**. The wizard uses native dialogs (folder picker, etc.) to create your workspace and connect it to GitHub. Your work backs up automatically.
 
@@ -74,7 +74,7 @@ For the curious: what's actually going on.
 
 ## Deep Links (If Supported)
 
-- **Install extension:** `vscode://marketplace.visualstudio.com/items?itemName=YMSDynamics.zendoc` (opens in VS Code/Cursor)
+- **Install extension:** `vscode://marketplace.visualstudio.com/items?itemName=YMSDynamics.yms-zendoc` (opens in VS Code/Cursor)
 - **Open Cursor:** `cursor://` (may open Cursor or prompt to install)
 
 ---
