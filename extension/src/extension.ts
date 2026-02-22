@@ -210,6 +210,7 @@ function showGitHubSetupPanel(context: vscode.ExtensionContext, targetPath: stri
         outputChannel?.hide();
         panel.webview.postMessage({ type: 'success', message: 'Your work backs up to GitHub automatically.' });
         vscode.window.showInformationMessage('Your work backs up to GitHub automatically.');
+        setTimeout(() => panel.dispose(), 2000);
       } catch (error) {
         const msg = error instanceof Error ? error.message : String(error);
         log(`GitHub setup failed: ${msg}`);
