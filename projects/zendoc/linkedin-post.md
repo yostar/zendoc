@@ -2,7 +2,9 @@
 
 ---
 
-I've been puzzled by something for a while.
+I met someone this past week who was working dilligently on sensitive documentation and I was empathetic of the amount of legwork he had to do to keep track of revisions, local copies, and trying to use AI agents to help. It was a tangled mess.
+
+I suggested something to him and quickly realized the tools I'm used to were simply not available to him.
 
 Software development has incredible tools - version control, locally stored files, cloud backup, and of course now AI assistants that do most of the heavy lifting. But when I sit down to write a note, a document, or a proposal, none of that exists. Everything is propertiety - Microsoft Word, Google Docs, Notion, Evernote... AI is helping - but if you're not a software dev using tools like Cursor, you just don't know.
 
@@ -20,7 +22,7 @@ The biggest challenge was how to bridge the gap of a technical tool for a non-te
 
 Two clicks to set up. Your work auto-commits to GitHub. AI that acts like a librarian, not a coder. No walled gardens, no proprietary formats - just Markdown files you own.
 
-It's open source. It's free. And I hope it brings some of you joy and productivity!
+It's open source. It's free. And I hope it brings you joy and productivity!
 
 → [Zendoc for Cursor](https://yoavschwartz.github.io/zendoc/)
 
