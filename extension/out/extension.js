@@ -163,8 +163,10 @@ function activate(context) {
                 const cliExists = cliPath.includes('/') ? fs.existsSync(cliPath) : true;
                 log(`Using CLI: ${cliPath} (exists: ${cliExists})`);
                 vscode.window.showInformationMessage('Creating Zendoc profile and opening workspace...');
-                // Create the Zendoc profile by opening Cursor with it (profile is created if it doesn't exist)
-                (0, child_process_1.exec)(`"${cliPath}" "${workspacePath}" --profile "${ZENDOC_PROFILE}"`, (err) => {
+                const workspaceFile = path.join(workspacePath, 'zendoc.code-workspace');
+                const welcomeFile = path.join(workspacePath, 'Welcome.md');
+                // Create the Zendoc profile by opening Cursor with workspace file + Welcome.md (profile created if needed)
+                (0, child_process_1.exec)(`"${cliPath}" "${workspaceFile}" "${welcomeFile}" --profile "${ZENDOC_PROFILE}"`, (err) => {
                     if (err) {
                         log(`Open failed: ${err}`);
                         vscode.window.showInformationMessage(`Workspace created at ${workspacePath}. Open it manually with File > Open Folder.`);

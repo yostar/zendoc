@@ -16,6 +16,7 @@
     "*.md": "markdownForHumans.editor"
   },
   "cursor.editor.layout": "editor",
+  "cursor.experimental.agentUi": "disabled",
   "editor.fontSize": 14,
   "editor.lineHeight": 1.4,
   "editor.wordWrap": "on",
