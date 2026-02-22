@@ -14,6 +14,7 @@ const REQUIRED_EXTENSIONS = [
 ];
 
 let outputChannel: vscode.OutputChannel;
+let welcomePanelToCloseOnCreate: vscode.WebviewPanel | undefined;
 
 function log(message: string): void {
   outputChannel?.appendLine(`[Zendoc] ${message}`);
@@ -69,6 +70,69 @@ async function runCommand(cmd: string, cwd?: string): Promise<{ stdout: string; 
     log(`Error: ${msg}`);
     throw new Error(msg);
   }
+}
+
+function getWelcomePanelHtml(): string {
+  return `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: var(--vscode-font-family);
+      font-size: 14px;
+      padding: 24px;
+      color: var(--vscode-foreground);
+      line-height: 1.6;
+    }
+    h2 { margin-top: 0; }
+    p { margin: 12px 0; color: var(--vscode-descriptionForeground); }
+    button {
+      padding: 12px 24px;
+      font-size: 14px;
+      background: var(--vscode-button-background);
+      color: var(--vscode-button-foreground);
+      border: none;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+    button:hover { opacity: 0.9; }
+  </style>
+</head>
+<body>
+  <h2>Welcome to Zendoc</h2>
+  <p>A writing environment with GitHub backup. Create a workspace to get started.</p>
+  <button id="create">Create workspace</button>
+  <script>
+    const vscode = acquireVsCodeApi();
+    document.getElementById('create').onclick = () => {
+      vscode.postMessage({ type: 'createWorkspace' });
+    };
+  </script>
+</body>
+</html>`;
+}
+
+function showWelcomePanel(context: vscode.ExtensionContext): void {
+  const panel = vscode.window.createWebviewPanel(
+    'zendoc.welcome',
+    'Zendoc',
+    vscode.ViewColumn.One,
+    { enableScripts: true }
+  );
+  welcomePanelToCloseOnCreate = panel;
+  panel.onDidDispose(() => {
+    welcomePanelToCloseOnCreate = undefined;
+  });
+
+  panel.webview.html = getWelcomePanelHtml();
+
+  panel.webview.onDidReceiveMessage((message: { type: string }) => {
+    if (message.type === 'createWorkspace') {
+      vscode.commands.executeCommand('zendoc.createWorkspace');
+    }
+  });
 }
 
 function getGitHubSetupHtml(): string {
@@ -415,6 +479,11 @@ export function activate(context: vscode.ExtensionContext) {
 
         showGitHubSetupPanel(context, workspacePath);
 
+        if (welcomePanelToCloseOnCreate) {
+          welcomePanelToCloseOnCreate.dispose();
+          welcomePanelToCloseOnCreate = undefined;
+        }
+
         vscode.window.showInformationMessage('Your workspace is ready. Check Welcome.md to get started.');
       } catch (error) {
         const msg = error instanceof Error ? error.message : String(error);
@@ -448,15 +517,13 @@ export function activate(context: vscode.ExtensionContext) {
   applyZendocLayout(context);
 
   const hasShownWelcome = context.globalState.get<boolean>('zendoc.welcomeShown');
-  if (!hasShownWelcome) {
+  const folder = vscode.workspace.workspaceFolders?.[0];
+  const isZendocWorkspace = folder
+    ? fs.existsSync(vscode.Uri.joinPath(folder.uri, 'Welcome.md').fsPath)
+    : false;
+  if (!hasShownWelcome && !isZendocWorkspace) {
     context.globalState.update('zendoc.welcomeShown', true);
-    vscode.window
-      .showInformationMessage('Create your Zendoc workspace', 'Create workspace')
-      .then((choice) => {
-        if (choice === 'Create workspace') {
-          vscode.commands.executeCommand('zendoc.createWorkspace');
-        }
-      });
+    showWelcomePanel(context);
   }
   } catch (err) {
     console.error('[Zendoc] Activation failed:', err);
