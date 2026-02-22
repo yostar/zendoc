@@ -42,7 +42,7 @@ The AI Agent that sits beside you is instructed to act like a librarian, not a c
 
 And in every project you can say things like "add instruction: always remember to capitalize and bold the first sentence of every new file" and it will remember that. Forever.
 
-This is also my first open source project, so if you're on the technical side feel free to star or fork it - make it better. Please!
+This is also my first open source project, so if you're on the technical side feel free to [star or fork it](https://github.com/yostar/zendoc) - make it better. Please!
 
 I hope you'll give it a try! Please share your experience/bugs/feedback here - I'll do my best to address.
 
