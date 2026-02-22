@@ -24,6 +24,13 @@
         "command": "zendoc.setupBackup",
         "title": "Set up cloud backup (GitHub)"
       }
+    ],
+    "keybindings": [
+      {
+        "command": "zendoc.createWorkspace",
+        "key": "ctrl+shift+z",
+        "mac": "cmd+shift+z"
+      }
     ]
   },
   "scripts": {
