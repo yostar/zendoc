@@ -2,17 +2,17 @@
 
 ---
 
-I met someone this past week who was working dilligently on sensitive documentation and I was empathetic of the amount of legwork he had to do to keep track of revisions, local copies, and trying to use AI agents to help. It was a tangled mess.
+I met someone this past week who was working dilligently on sensitive documents in a medical field and I was empathetic to the amount of legwork he had to do to keep track of revisions, local copies, security and on top of that going back and for with an AI chat to help. It was a tangled mess.
 
-I suggested something to him and quickly realized the tools I'm used to were simply not available to him.
+I suggested something to him and quickly realized the tools I'm used to were simply not available to someone non-technical.
 
-Software development has incredible tools - version control, locally stored files, cloud backup, and of course now AI assistants that do most of the heavy lifting. But when I sit down to write a note, a document, or a proposal, none of that exists. Everything is propertiety - Microsoft Word, Google Docs, Notion, Evernote... AI is helping - but if you're not a software dev using tools like Cursor, you just don't know.
+Software development has incredible tools - version control, locally stored files, cloud backup, and of course now AI assistants that do most of the heavy lifting. But when I sit down to write a note, a document, or even this post, none of that sophistication exists. Everything is propertiety - Microsoft Word, Google Docs, Notion, Evernote... AI is being baked in - but if you're not a software developer using tools like @Cursor, you just don't know.
 
 So I built something. 
 
-I'm bringing the **Docs-as-Code** workflow to the "creative" and "business" writer. Why should devs have all the fun?
+I'm bringing the **Docs-as-Code** workflow to the non-technical writer. Why should devs have all the fun?
 
-**Zendoc** is a writing environment that runs inside **Cursor **- I use Cursor all day every day to write code. It's absolutely incredible. And while it still suffers from context window limits (since it just leverages different AI models) it leverages AGENTS.md files that can store permament memory and rules, that it always uses on every prompt. For some reason this just isn't available when you chat with ChatGPT or Gemini etc. I don't know why... 
+**Zendoc** is a writing environment that runs *inside* **Cursor **- I use Cursor all day, every day to write code. It's absolutely incredible. And while it also suffers from context window limits (since it just leverages different AI models with their own limits) it leverages AGENTS.md files that can store permament memory and rules, that it always uses on every prompt. For some reason this just isn't available when you chat with ChatGPT or Gemini etc. I don't know why... 
 
 I manage/add/edit hundreds of thousands of lines of complex code all by myself using Cursor.
 
