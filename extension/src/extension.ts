@@ -187,17 +187,30 @@ export function activate(context: vscode.ExtensionContext) {
         const cliExists = cliPath.includes('/') ? fs.existsSync(cliPath) : true;
         log(`Using CLI: ${cliPath} (exists: ${cliExists})`);
 
-        vscode.window.showInformationMessage('Installing extensions (GitDoc, Markdown All in One, Markdown for Humans)...');
+        vscode.window.showInformationMessage('Creating Zendoc profile and opening workspace...');
 
-        // Install to default profile (Zendoc profile doesn't exist yet; TODO: create profile first for isolation)
+        // Create the Zendoc profile by opening Cursor with it (profile is created if it doesn't exist)
+        exec(`"${cliPath}" "${workspacePath}" --profile "${ZENDOC_PROFILE}"`, (err) => {
+          if (err) {
+            log(`Open failed: ${err}`);
+            vscode.window.showInformationMessage(
+              `Workspace created at ${workspacePath}. Open it manually with File > Open Folder.`
+            );
+          }
+        });
+
+        // Wait for Cursor to start and create the profile, then install extensions into it
+        await new Promise((resolve) => setTimeout(resolve, 5000));
+        vscode.window.showInformationMessage('Installing extensions into Zendoc profile (GitDoc, Markdown All in One, Markdown for Humans)...');
+
         for (const extId of REQUIRED_EXTENSIONS) {
           try {
-            await runCommand(`"${cliPath}" --install-extension ${extId}`);
+            await runCommand(`"${cliPath}" --install-extension ${extId} --profile "${ZENDOC_PROFILE}"`);
             log(`Installed: ${extId}`);
           } catch (err) {
             log(`Failed to install ${extId}: ${err}`);
             vscode.window.showWarningMessage(
-              `Could not install ${extId}. Install it manually from the Extensions panel.`,
+              `Could not install ${extId}. Install it manually from the Extensions panel when the workspace opens.`,
               'Show Extensions'
             ).then((choice) => {
               if (choice === 'Show Extensions') {
@@ -207,17 +220,7 @@ export function activate(context: vscode.ExtensionContext) {
           }
         }
 
-        vscode.window.showInformationMessage('Opening workspace...');
-        exec(`"${cliPath}" "${workspacePath}"`, (err) => {
-          if (err) {
-            log(`Open failed: ${err}`);
-            vscode.window.showInformationMessage(
-              `Workspace created at ${workspacePath}. Open it manually with File > Open Folder.`
-            );
-          }
-        });
-
-        vscode.window.showInformationMessage('Your workspace is ready. A new window will open—check Welcome.md to get started.');
+        vscode.window.showInformationMessage('Your workspace is ready. Extensions are installed in the Zendoc profile—check Welcome.md to get started.');
       } catch (error) {
         const msg = error instanceof Error ? error.message : String(error);
         log(`Fatal error: ${msg}`);
