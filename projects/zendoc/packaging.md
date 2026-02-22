@@ -1,5 +1,5 @@
 ---
-date: 2025-02-21
+date: 2026-02-21
 tags: [packaging, installer, distribution]
 status: draft
 ---
