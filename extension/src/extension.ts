@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
+import * as os from 'os';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 
@@ -11,10 +12,12 @@ const REQUIRED_EXTENSIONS = [
   'vsls-contrib.gitdoc',
   'yzhang.markdown-all-in-one',
   'concretio.markdown-for-humans',
+  'YMSDynamics.yms-zendoc', // Needed in Zendoc profile so new window runs layout + GitHub setup
 ];
 
 let outputChannel: vscode.OutputChannel;
 let welcomePanelToCloseOnCreate: vscode.WebviewPanel | undefined;
+let hasShownSessionWelcome = false;
 
 function log(message: string): void {
   outputChannel?.appendLine(`[Zendoc] ${message}`);
@@ -367,36 +370,42 @@ export function activate(context: vscode.ExtensionContext) {
         outputChannel.show();
         log('Starting Create Workspace wizard...');
 
-        const folderUris = await vscode.window.showOpenDialog({
-          canSelectFolders: true,
-          canSelectMany: false,
-          title: 'Choose where to create your Zendoc workspace',
-          openLabel: 'Select Folder',
-        });
+        const documentsPath = path.join(os.homedir(), 'Documents');
+        let workspacePath = path.join(documentsPath, 'zendoc');
 
-        if (!folderUris || folderUris.length === 0) {
-          log('User cancelled folder selection');
-          return;
+        if (fs.existsSync(workspacePath)) {
+          const pickOther = await vscode.window.showErrorMessage(
+            `${workspacePath} already exists.`,
+            'Choose another location'
+          );
+          if (pickOther !== 'Choose another location') {
+            log('User cancelled');
+            return;
+          }
+          const defaultUri = fs.existsSync(documentsPath) ? vscode.Uri.file(documentsPath) : undefined;
+          const folderUris = await vscode.window.showOpenDialog({
+            canSelectFolders: true,
+            canSelectMany: false,
+            title: 'Choose folder',
+            openLabel: 'Select',
+            defaultUri,
+          });
+          if (!folderUris?.length) {
+            log('User cancelled');
+            return;
+          }
+          const workspaceName = await vscode.window.showInputBox({
+            prompt: 'Workspace name',
+            value: 'zendoc',
+            validateInput: (v) => (!/^[a-zA-Z0-9_-]+$/.test(v) ? 'Letters, numbers, hyphens, underscores only' : null),
+          });
+          if (!workspaceName) return;
+          workspacePath = path.join(folderUris[0].fsPath, workspaceName);
+          if (fs.existsSync(workspacePath)) {
+            vscode.window.showErrorMessage(`Folder already exists: ${workspacePath}`);
+            return;
+          }
         }
-
-        const parentPath = folderUris[0].fsPath;
-        const workspaceName = await vscode.window.showInputBox({
-          prompt: 'Name your workspace',
-          value: 'zendoc',
-          validateInput: (value) => {
-            if (!/^[a-zA-Z0-9_-]+$/.test(value)) {
-              return 'Use only letters, numbers, hyphens, and underscores';
-            }
-            return null;
-          },
-        });
-
-        if (!workspaceName) {
-          log('User cancelled workspace name');
-          return;
-        }
-
-        const workspacePath = path.join(parentPath, workspaceName);
         if (fs.existsSync(workspacePath)) {
           vscode.window.showErrorMessage(`Folder already exists: ${workspacePath}`);
           return;
@@ -415,76 +424,44 @@ export function activate(context: vscode.ExtensionContext) {
         log('GitHub setup skipped');
 
         const cliPath = getCliPath();
-        const cliExists = cliPath.includes('/') ? fs.existsSync(cliPath) : true;
-        log(`Using CLI: ${cliPath} (exists: ${cliExists})`);
+        log(`Using CLI: ${cliPath}`);
 
+        // 1. Open workspace FIRST—creates Zendoc profile so install-extension can target it
+        vscode.window.showInformationMessage('Opening workspace in Zendoc profile...');
+        await runCommand(`"${cliPath}" "${workspacePath}" --profile "${ZENDOC_PROFILE}"`);
+        log(`Opened ${workspacePath} in ${ZENDOC_PROFILE} profile`);
+
+        // 2. Brief delay so profile is fully created, then install extensions
+        await new Promise((resolve) => setTimeout(resolve, 1500));
         vscode.window.showInformationMessage('Installing extensions...');
-
-        // 1. Install extensions WITHOUT profile (current window = Extension Development Host uses default profile)
         for (const extId of REQUIRED_EXTENSIONS) {
           try {
-            await runCommand(`"${cliPath}" --install-extension ${extId}`);
-            log(`Installed: ${extId}`);
+            await runCommand(`"${cliPath}" --install-extension ${extId} --profile "${ZENDOC_PROFILE}"`);
+            log(`Installed for ${ZENDOC_PROFILE}: ${extId}`);
           } catch (err) {
             log(`Failed to install ${extId}: ${err}`);
             vscode.window.showWarningMessage(
-              `Could not install ${extId}. Install it manually from the Extensions panel.`,
-              'Show Extensions'
-            ).then((choice) => {
-              if (choice === 'Show Extensions') {
-                vscode.commands.executeCommand('workbench.view.extensions');
-              }
-            });
+              `Could not install ${extId}. Install recommended extensions in the Zendoc window when prompted.`,
+              'OK'
+            );
           }
         }
-
-        vscode.window.showInformationMessage('Opening workspace...');
-
-        // 2. Open folder in CURRENT window so we can run layout commands
-        const uri = vscode.Uri.file(workspacePath);
-        await vscode.commands.executeCommand('vscode.openFolder', uri);
-
-        // 3. Run workbench.view.explorer, open Welcome.md, fix initial render
-        await new Promise((resolve) => setTimeout(resolve, 800));
-        const welcomePath = vscode.Uri.joinPath(uri, 'Welcome.md');
-        const gitignorePath = vscode.Uri.joinPath(uri, '.gitignore');
-        try {
-          await vscode.commands.executeCommand('workbench.view.explorer');
-          await vscode.commands.executeCommand('markdownForHumans.openFile', welcomePath);
-          // Workaround: initial open shows plain markdown; switching away and back fixes it
-          await new Promise((resolve) => setTimeout(resolve, 300));
-          try {
-            const otherDoc = await vscode.workspace.openTextDocument(gitignorePath);
-            await vscode.window.showTextDocument(otherDoc, { preview: false });
-            await new Promise((resolve) => setTimeout(resolve, 150));
-            await vscode.commands.executeCommand('markdownForHumans.openFile', welcomePath);
-            // Close the .gitignore tab used for the workaround
-            const gitignoreTab = vscode.window.tabGroups.all
-              .flatMap((g) => g.tabs)
-              .find((t) => t.input instanceof vscode.TabInputText && t.input.uri.fsPath === gitignorePath.fsPath);
-            if (gitignoreTab) {
-              await vscode.window.tabGroups.close(gitignoreTab);
-            }
-          } catch (_) {
-            // .gitignore may not exist; try reopening Welcome anyway
-            await vscode.commands.executeCommand('markdownForHumans.openFile', welcomePath);
-          }
-        } catch (e) {
-          log(`Layout apply failed: ${e}`);
-          try {
-            const doc = await vscode.workspace.openTextDocument(welcomePath);
-            await vscode.window.showTextDocument(doc, { preview: false });
-          } catch (_) {}
-        }
-
-        showGitHubSetupPanel(context, workspacePath);
 
         if (welcomePanelToCloseOnCreate) {
           welcomePanelToCloseOnCreate.dispose();
           welcomePanelToCloseOnCreate = undefined;
         }
 
-        vscode.window.showInformationMessage('Your workspace is ready. Check Welcome.md to get started.');
+        // Show after install messages so it's visible
+        await new Promise((r) => setTimeout(r, 500));
+        vscode.window.showInformationMessage(
+          'Zendoc workspace ready! A new window should have opened—check for it.',
+          'Open Zendoc'
+        ).then((sel) => {
+          if (sel === 'Open Zendoc') {
+            runCommand(`"${getCliPath()}" "${workspacePath}" --profile "${ZENDOC_PROFILE}"`);
+          }
+        });
       } catch (error) {
         const msg = error instanceof Error ? error.message : String(error);
         log(`Fatal error: ${msg}`);
@@ -520,14 +497,20 @@ export function activate(context: vscode.ExtensionContext) {
   // When in a Zendoc workspace, run commands to show Explorer and open Welcome.md
   applyZendocLayout(context);
 
-  const hasShownWelcome = context.globalState.get<boolean>('zendoc.welcomeShown');
+  // Prompt to create workspace when not already in one (session-based so it shows after install/reload)
   const folder = vscode.workspace.workspaceFolders?.[0];
   const isZendocWorkspace = folder
     ? fs.existsSync(vscode.Uri.joinPath(folder.uri, 'Welcome.md').fsPath)
     : false;
-  if (!hasShownWelcome && !isZendocWorkspace) {
-    context.globalState.update('zendoc.welcomeShown', true);
-    showWelcomePanel(context);
+  if (!hasShownSessionWelcome && !isZendocWorkspace) {
+    hasShownSessionWelcome = true;
+    vscode.window
+      .showInformationMessage('Zendoc is ready. Create your writing workspace.', 'Create workspace')
+      .then((selection) => {
+        if (selection === 'Create workspace') {
+          vscode.commands.executeCommand('zendoc.createWorkspace');
+        }
+      });
   }
   } catch (err) {
     console.error('[Zendoc] Activation failed:', err);
