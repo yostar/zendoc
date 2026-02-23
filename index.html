@@ -5,6 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" href="assets/favicon.png" type="image/png">
   <title>Zendoc — Distraction-free writing, powered by AI</title>
+  <!-- Open Graph -->
+  <meta property="og:title" content="Zendoc — Distraction-free writing, powered by AI">
+  <meta property="og:description" content="A VS Code extension that turns Cursor into a writing platform with auto-backup to GitHub. Three steps. Markdown you own.">
+  <meta property="og:image" content="https://yostar.github.io/zendoc/assets/zendoc-screen.jpg">
+  <meta property="og:type" content="website">
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Zendoc — Distraction-free writing, powered by AI">
+  <meta name="twitter:description" content="A VS Code extension that turns Cursor into a writing platform with auto-backup to GitHub.">
+  <meta name="twitter:image" content="https://yostar.github.io/zendoc/assets/zendoc-screen.jpg">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -33,9 +43,11 @@
 </head>
 <body class="bg-paper text-ink font-sans antialiased min-h-screen">
   <main class="max-w-2xl mx-auto px-6 py-16 md:py-24">
+    <!-- Header image -->
+    <img src="assets/zendoc-screen.jpg" alt="Zendoc workspace" class="w-full rounded-lg mb-12 shadow-lg">
+
     <!-- Logo & Hero -->
     <header class="text-center mb-16">
-      <img src="assets/zendoc-logo.png" alt="Zendoc" class="h-20 md:h-32 mx-auto mb-8">
 
       <h1 class="font-serif text-4xl md:text-5xl font-semibold text-ink mb-4">
         Distraction-free writing,<br>
@@ -73,7 +85,7 @@
     </section>
 
     <!-- Under the Hood -->
-    <section class="border-t border-ink/10 pt-16">
+    <section class="space-y-6 mb-20 border-t border-ink/10 pt-16">
       <h2 class="font-serif text-4xl font-semibold text-ink mb-2">Under the hood</h2>
       <p class="text-ink/70 mb-8">For the curious: what's actually going on.</p>
 
@@ -130,6 +142,16 @@
           <h3 class="font-medium text-ink mb-1">The rest</h3>
           <p>Auto-save (1 second delay), minimal UI (no line numbers, no minimap, sidebar on the right), dotfiles hidden. Everything tuned for writing.</p>
         </div>
+      </div>
+    </section>
+
+    <!-- Zendoc vs. Obsidian -->
+    <section class="space-y-6 mb-20 border-t border-ink/10 pt-16">
+      <h2 class="font-serif text-4xl font-semibold text-ink mb-2">Zendoc vs. Obsidian</h2>
+      <p class="text-ink/70 mb-8">The Difference: Architecture vs. Sanctuary</p>
+
+      <div class="space-y-4 text-ink/80">
+        <p>While both tools are built on the open Markdown (.md) standard, they serve different philosophies. Obsidian is a modular construction kit designed for Personal Knowledge Management and linking complex ideas. Zendoc, by contrast, is an opinionated sanctuary built on an industrial-grade IDE (Cursor/VS Code). Instead of a "hobby" of plugin management and manual syncing, Zendoc provides a pre-configured, high-performance environment with native Docs-as-Code versioning. It isn't about building a "second brain"—it's about providing a professional, distraction-free engine for your first one.</p>
       </div>
     </section>
 

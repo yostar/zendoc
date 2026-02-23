@@ -35,3 +35,45 @@ Zendoc exists because there is a "Missing Middle" in the current market for powe
 ## 5. Open Source & Community First
 
 Zendoc will be open source. The strategy is to build a strong community before monetization—as long as there are no ongoing costs, which there should not be. The core product is free; revenue comes later from optional upgrades (AI usage, premium plugins).
+
+## **6. Zendoc vs. Obsidian: Choosing Your Workspace**
+
+While both tools use **Markdown** as their foundation, they are designed for different workflows. Here is a neutral breakdown of how they compare.
+
+### **The Architecture**
+
+- **Obsidian:** A dedicated environment built for **Personal Knowledge Management (PKM)**. Its core strength is the "Graph View" and the ability to create a "Second Brain" by linking thousands of small notes.
+- **Zendoc:** Built on a **Professional IDE (Integrated Development Environment)**. It treats writing like a software project, prioritizing the speed, stability, and "industrial" feel of a code editor (Cursor/VS Code).
+
+### **Version Control & Sync**
+
+- **Obsidian:** Offers a proprietary paid sync service. Users can also use third-party community plugins to connect to Git or other cloud services.
+- **Zendoc:** Uses a **Docs-as-Code** model. Git integration is native to the engine, allowing for automated, background versioning and syncing to GitHub without needing additional paid services or complex plugin setups.
+
+### **Feature Management**
+
+- **Obsidian:** Uses a modular **Plugin System**. Users can customize almost every aspect of the app by installing community-made plugins for calendars, kanban boards, and AI.
+- **Zendoc:** Uses a **Pre-configured Zen** approach. It is "opinionated" software—the settings for auto-save, right-aligned sidebars, and minimalist UI are baked in to provide a sanctuary-like experience out of the box.
+
+### **AI Integration**
+
+- **Obsidian:** AI capabilities are added through various community plugins, which require individual setup and API configuration.
+- **Zendoc:** Leverages the native AI engine of **Cursor**. This provides a deeply integrated AI assistant that understands the context of your entire project folder natively.
+
+---
+
+
+| Feature            | **Obsidian**                                                     | **Zendoc**                                                               |
+| ------------------ | ---------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| **Primary Focus**  | Personal Knowledge Management (PKM) and idea linking.            | High-performance writing and deep work flow.                             |
+| **Core Engine**    | Custom-built Electron application.                               | Industrial IDE (Cursor / VS Code).                                       |
+| **Philosophy**     | **Modular:** Build your own tool via a massive plugin ecosystem. | **Opinionated:** Pre-configured "Zen" state to eliminate setup friction. |
+| **File Format**    | Local-First Markdown (`.md`).                                    | Local-First Markdown (`.md`).                                            |
+| **Sync & History** | Proprietary paid service or community-maintained Git plugins.    | Native **Docs-as-Code** model with automated background Git syncing.     |
+| **Interface**      | Highly customizable; default left-aligned sidebar.               | Minimalist; right-aligned sidebar to keep text centered.                 |
+| **AI Integration** | Added via third-party community plugins.                         | Built on Cursor’s native, project-aware AI engine.                       |
+
+
+### **A Note for Markdown Users**
+
+Because both tools use the open `.md` standard, your files are never "locked" into one app. You can open your Zendoc folder in Obsidian to see your graph, or open your Obsidian vault in Zendoc when you want to experience a high-performance, minimalist writing "Mode."
