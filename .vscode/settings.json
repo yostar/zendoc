@@ -27,5 +27,6 @@
   "explorer.compactFolders": false,
   "editor.renderWhitespace": "none",
   "editor.guides.bracketPairs": false,
-  "workbench.statusBar.visible": false
+  "workbench.statusBar.visible": true,
+  "gitdoc.enabled": true
 }
