@@ -1,0 +1,7 @@
+{
+  "name": "zendoc",
+  "private": true,
+  "scripts": {
+    "watch:extensionless": "node scripts/watch-extensionless.js"
+  }
+}
