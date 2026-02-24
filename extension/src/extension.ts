@@ -521,6 +521,17 @@ export function activate(context: vscode.ExtensionContext) {
         const edit = new vscode.WorkspaceEdit();
         edit.renameFile(uri, newUri);
         await vscode.workspace.applyEdit(edit);
+
+        // Close old tab (if open) and open the renamed file
+        const oldTab = vscode.window.tabGroups.all
+          .flatMap((g) => g.tabs)
+          .find((t) => t.input instanceof vscode.TabInputText && t.input.uri.fsPath === uri.fsPath);
+        if (oldTab) {
+          await vscode.window.tabGroups.close(oldTab);
+        }
+        const doc = await vscode.workspace.openTextDocument(newUri);
+        await vscode.window.showTextDocument(doc, { preview: false });
+
         log(`Renamed to .md: ${basename}`);
       } catch (e) {
         log(`File rename failed: ${e}`);

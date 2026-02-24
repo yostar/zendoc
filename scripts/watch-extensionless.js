@@ -6,6 +6,7 @@
  */
 const fs = require('fs');
 const path = require('path');
+const { exec } = require('child_process');
 const chokidar = require('chokidar');
 
 const EXCLUDED = ['.git', '.vscode', 'node_modules', '.md4h', '.cursor'];
@@ -40,6 +41,8 @@ watcher.on('add', (filePath) => {
 
       fs.renameSync(filePath, newPath);
       console.log(`[watch] Renamed to .md: ${path.relative(ROOT, filePath)}`);
+      // Open the new file in Cursor (can't close old tab from Node)
+      exec(`cursor "${newPath}"`, () => {});
     } catch (e) {
       if (e.code !== 'ENOENT') console.error(`[watch] ${filePath}:`, e.message);
     }
