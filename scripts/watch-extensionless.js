@@ -2,13 +2,16 @@
 /**
  * Watches for new files without extensions and renames them to .md.
  * Run in prototype workspace: node scripts/watch-extensionless.js
- * Same logic as the Zendoc extension's file watcher.
+ * Uses chokidar to avoid EMFILE with fs.watch on large trees.
  */
 const fs = require('fs');
 const path = require('path');
+const chokidar = require('chokidar');
 
 const EXCLUDED = ['.git', '.vscode', 'node_modules', '.md4h', '.cursor'];
 const ROOT = process.cwd();
+const WATCH_DIR = path.join(ROOT, 'projects');
+const toWatch = fs.existsSync(WATCH_DIR) ? WATCH_DIR : ROOT;
 
 function shouldRename(filePath) {
   const basename = path.basename(filePath);
@@ -20,27 +23,30 @@ function shouldRename(filePath) {
   return !EXCLUDED.some((d) => rel.includes(path.sep + d + path.sep) || rel.startsWith(d + path.sep));
 }
 
-fs.watch(ROOT, { recursive: true }, (event, filename) => {
-  if (!filename) return;
-  const full = path.join(ROOT, filename);
-  if (event !== 'rename') return; // 'rename' = create or delete
-
-  setTimeout(() => {
-    try {
-      const stat = fs.statSync(full);
-      if (!stat.isFile()) return;
-      if (!shouldRename(full)) return;
-
-      const newPath = full + '.md';
-      if (fs.existsSync(newPath)) return;
-
-      fs.renameSync(full, newPath);
-      console.log(`[watch] Renamed to .md: ${filename}`);
-    } catch (_) {
-      // File may have been deleted or doesn't exist yet
-    }
-  }, 50);
+const watcher = chokidar.watch(toWatch, {
+  ignoreInitial: true,
+  ignored: (p) => EXCLUDED.some((d) => p.includes(path.sep + d + path.sep) || p.endsWith(path.sep + d)),
 });
 
-console.log(`[watch] Watching for extensionless files in ${ROOT}`);
+watcher.on('add', (filePath) => {
+  setTimeout(() => {
+    try {
+      const stat = fs.statSync(filePath);
+      if (!stat.isFile()) return;
+      if (!shouldRename(filePath)) return;
+
+      const newPath = filePath + '.md';
+      if (fs.existsSync(newPath)) return;
+
+      fs.renameSync(filePath, newPath);
+      console.log(`[watch] Renamed to .md: ${path.relative(ROOT, filePath)}`);
+    } catch (e) {
+      if (e.code !== 'ENOENT') console.error(`[watch] ${filePath}:`, e.message);
+    }
+  }, 100);
+});
+
+watcher.on('error', (e) => console.error('[watch]', e));
+
+console.log(`[watch] Watching for extensionless files in ${toWatch}`);
 console.log('[watch] Press Ctrl+C to stop');

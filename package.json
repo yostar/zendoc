@@ -3,5 +3,8 @@
   "private": true,
   "scripts": {
     "watch:extensionless": "node scripts/watch-extensionless.js"
+  },
+  "devDependencies": {
+    "chokidar": "^4.0.0"
   }
 }
