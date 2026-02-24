@@ -497,8 +497,39 @@ export function activate(context: vscode.ExtensionContext) {
   // When in a Zendoc workspace, run commands to show Explorer and open Welcome.md
   applyZendocLayout(context);
 
-  // Prompt to create workspace when not already in one (session-based so it shows after install/reload)
+  // File watcher: auto-add .md to extensionless files (Zendoc workspaces only, skip dotfiles)
   const folder = vscode.workspace.workspaceFolders?.[0];
+  if (folder && fs.existsSync(vscode.Uri.joinPath(folder.uri, 'Welcome.md').fsPath)) {
+    const watcher = vscode.workspace.createFileSystemWatcher(
+      new vscode.RelativePattern(folder, '**/*')
+    );
+    watcher.onDidCreate(async (uri) => {
+      try {
+        const stat = await vscode.workspace.fs.stat(uri);
+        if (stat.type !== vscode.FileType.File) return;
+
+        const basename = path.basename(uri.fsPath);
+        if (basename.startsWith('.')) return;
+
+        const ext = path.extname(uri.fsPath);
+        if (ext !== '') return;
+
+        const excluded = ['.git', '.vscode', 'node_modules', '.md4h', '.cursor'];
+        if (excluded.some((d) => uri.fsPath.includes(`/${d}/`) || uri.fsPath.endsWith(`/${d}`))) return;
+
+        const newUri = uri.with({ path: uri.path + '.md' });
+        const edit = new vscode.WorkspaceEdit();
+        edit.renameFile(uri, newUri);
+        await vscode.workspace.applyEdit(edit);
+        log(`Renamed to .md: ${basename}`);
+      } catch (e) {
+        log(`File rename failed: ${e}`);
+      }
+    });
+    context.subscriptions.push(watcher);
+  }
+
+  // Prompt to create workspace when not already in one (session-based so it shows after install/reload)
   const isZendocWorkspace = folder
     ? fs.existsSync(vscode.Uri.joinPath(folder.uri, 'Welcome.md').fsPath)
     : false;
