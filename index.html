@@ -4,16 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" href="assets/favicon.png" type="image/png">
-  <title>Zendoc — Distraction-free writing, powered by AI</title>
+  <title>Zendoc — Your AI forgets. This one doesn't.</title>
   <!-- Open Graph -->
-  <meta property="og:title" content="Zendoc — Distraction-free writing, powered by AI">
-  <meta property="og:description" content="A VS Code extension that turns Cursor into a writing platform with auto-backup to GitHub. Three steps. Markdown you own.">
+  <meta property="og:title" content="Zendoc — Your AI forgets. This one doesn't.">
+  <meta property="og:description" content="AI that sees your projects. Remembers everything. Keeps every word backed up. Three steps to get started.">
   <meta property="og:image" content="https://yostar.github.io/zendoc/assets/zendoc-screen.jpg">
   <meta property="og:type" content="website">
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Zendoc — Distraction-free writing, powered by AI">
-  <meta name="twitter:description" content="A VS Code extension that turns Cursor into a writing platform with auto-backup to GitHub.">
+  <meta name="twitter:title" content="Zendoc — Your AI forgets. This one doesn't.">
+  <meta name="twitter:description" content="AI that sees your projects. Remembers everything. Keeps every word backed up.">
   <meta name="twitter:image" content="https://yostar.github.io/zendoc/assets/zendoc-screen.jpg">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -50,38 +50,46 @@
     <header class="text-center mb-16">
 
       <h1 class="font-serif text-4xl md:text-5xl font-semibold text-ink mb-4">
-        Distraction-free writing,<br>
-        <span class="italic font-normal text-warm">powered by AI</span>
+        Your AI forgets.<br>
+        <span class="italic font-normal text-warm">This one doesn't.</span>
       </h1>
       <p class="text-lg text-ink/80 max-w-md mx-auto mt-6">
-        Three steps. A writing tool like you've never seen before.
+        AI that sees your projects. Remembers everything. Keeps every word backed up.
       </p>
     </header>
 
     <!-- Steps -->
     <section class="space-y-6 mb-20">
       <div class="flex flex-col sm:flex-row sm:items-center gap-4">
-        <span class="text-sm font-medium text-ink/70 sm:w-16">Step 1</span>
-        <a href="https://cursor.com" target="_blank" rel="noopener" class="inline-flex items-center justify-center px-8 py-4 bg-ink text-paper font-medium rounded-lg hover:bg-ink/90 transition-colors">
+        <span class="text-sm font-medium text-ink/70 sm:w-16 shrink-0">Step 1</span>
+        <a href="https://cursor.com" target="_blank" rel="noopener" class="inline-flex items-center justify-center px-8 py-4 bg-ink text-paper font-medium rounded-lg hover:bg-ink/90 transition-colors w-fit shrink-0">
           Install Cursor
         </a>
-        <span class="text-ink/70 text-sm">Download and install Cursor (free)</span>
+        <span class="text-ink/70 text-sm min-w-0">Download and install Cursor (free)</span>
       </div>
       <div class="flex flex-col sm:flex-row sm:items-center gap-4">
-        <span class="text-sm font-medium text-ink/70 sm:w-16">Step 2</span>
-        <div class="flex flex-col gap-2">
-          <a href="cursor:extension/YMSDynamics.yms-zendoc" class="inline-flex items-center justify-center px-8 py-4 border-2 border-ink text-ink font-medium rounded-lg hover:bg-ink hover:text-paper transition-colors w-fit">
-            Install Zendoc extension
-          </a>
-          <span class="text-ink/70 text-sm">Opens Cursor. If the extension page doesn't appear, type in chat: <code class="bg-ink/5 px-1.5 py-0.5 rounded text-xs">install extension yms-zendoc</code></span>
-        </div>
+        <span class="text-sm font-medium text-ink/70 sm:w-16 shrink-0">Step 2</span>
+        <a href="cursor:extension/YMSDynamics.yms-zendoc" class="inline-flex items-center justify-center px-8 py-4 border-2 border-ink text-ink font-medium rounded-lg hover:bg-ink hover:text-paper transition-colors w-fit shrink-0">
+          Install Zendoc
+        </a>
+        <span class="text-ink/70 text-sm min-w-0">Opens Cursor. If the extension page doesn't appear, type in chat: <code class="bg-ink/5 px-1.5 py-0.5 rounded text-xs">install extension yms-zendoc</code></span>
       </div>
       <div class="flex flex-col sm:flex-row sm:items-center gap-4">
-        <span class="text-sm font-medium text-ink/70 sm:w-16">Step 3</span>
-        <div class="px-8 py-4 bg-ink/5 border border-ink/10 rounded-lg">
-          <p class="text-ink/80 text-sm">Follow the onscreen instructions. Create workspace → connect GitHub → start writing.</p>
+        <span class="text-sm font-medium text-ink/70 sm:w-16 shrink-0">Step 3</span>
+        <div class="px-8 py-4 bg-ink/5 border border-ink/10 rounded-lg min-w-0 flex-1">
+          <p class="text-ink/80 text-sm">Follow the guide: Create workspace → connect GitHub → go.</p>
         </div>
       </div>
+    </section>
+
+    <!-- Value props -->
+    <section class="mb-20">
+      <ul class="space-y-3 text-ink/80 list-disc pl-6">
+        <li><strong class="text-ink">It never forgets.</strong> Everything you talk about gets documented. No new-chat amnesia.</li>
+        <li><strong class="text-ink">You never lose anything.</strong> Every keystroke saved, versioned, backed up to GitHub.</li>
+        <li><strong class="text-ink">Multi-model in one conversation.</strong> ChatGPT, Claude, Gemini—same thread. Whatever they write, you can edit, or set to "ask mode" and they can't touch anything.</li>
+        <li><strong class="text-ink">Your files are always yours.</strong> Plain Markdown. No lock-in. Open them anywhere.</li>
+      </ul>
     </section>
 
     <!-- Under the Hood -->
