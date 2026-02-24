@@ -34,6 +34,14 @@
     "sideBar.background": "#f5f3f0",
     "sideBar.border": "#e0e0e0",
     "sideBar.foreground": "#7a6565",
-    "editorGroupHeader.tabsBackground": "#f5f3f0"
+    "editorGroupHeader.tabsBackground": "#f5f3f0",
+    "editorGroupHeader.tabsBorder": "#e0e0e0",
+    "editorGroupHeader.tabsForeground": "#7a6565",
+    "editorGroupHeader.tabsActiveBorder": "#7a6565",
+    "editorGroupHeader.tabsActiveForeground": "#7a6565",
+    "editorGroupHeader.tabsInactiveBorder": "#e0e0e0",
+    "editorGroupHeader.tabsInactiveForeground": "#7a6565",
+    "editorGroupHeader.tabsActiveBackground": "#f5f3f0",
+    "editorGroupHeader.tabsInactiveBackground": "#f5f3f0"
   },
 }
