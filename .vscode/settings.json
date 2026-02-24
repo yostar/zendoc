@@ -28,5 +28,10 @@
   "editor.renderWhitespace": "none",
   "editor.guides.bracketPairs": false,
   "workbench.statusBar.visible": false,
-  "gitdoc.enabled": true
+  "gitdoc.enabled": true,
+  "workbench.colorCustomizations": {
+    "editor.background": "#ffffff",
+    "sideBar.background": "#f5f3f0",
+    "editorGroupHeader.tabsBackground": "#f5f3f0"
+}
 }
