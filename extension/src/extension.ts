@@ -638,7 +638,14 @@ export function activate(context: vscode.ExtensionContext) {
           const candidates = [
             path.join(context.extensionPath, `yms-zendoc-${version}.vsix`),
             path.join(context.extensionPath, '..', `yms-zendoc-${version}.vsix`),
+            path.join(os.homedir(), 'Downloads', `yms-zendoc-${version}.vsix`),
           ];
+          const downloadsDir = path.join(os.homedir(), 'Downloads');
+          if (fs.existsSync(downloadsDir)) {
+            const entries = fs.readdirSync(downloadsDir);
+            const zendocVsix = entries.find((e) => e.toLowerCase().includes('zendoc') && e.endsWith('.vsix'));
+            if (zendocVsix) candidates.push(path.join(downloadsDir, zendocVsix));
+          }
           const cachedDir = path.join(os.homedir(), 'Library', 'Application Support', 'Cursor', 'CachedExtensionVSIXs');
           if (fs.existsSync(cachedDir)) {
             const entries = fs.readdirSync(cachedDir);
