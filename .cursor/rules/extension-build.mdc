@@ -1,0 +1,20 @@
+---
+description: Zendoc extension build and packaging workflow
+globs: extension/**/*
+alwaysApply: false
+---
+
+# Extension Build Workflow
+
+## Regular Changes (non-publish)
+
+When making changes to the extension:
+- Run `npm run compile` in the extension folder
+- Run `vsce package` to produce the .vsix
+- **Keep the same version and file name** (overwrites existing .vsix, e.g. `yms-zendoc-0.1.7.vsix`)
+
+## Publish Only
+
+When the user explicitly asks to **publish** the extension:
+- Bump the version in `package.json`
+- Compile and package to the new file name (e.g. `yms-zendoc-0.1.8.vsix`)
