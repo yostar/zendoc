@@ -178,7 +178,7 @@ function showWelcomePanel(context: vscode.ExtensionContext): void {
   });
 }
 
-function getGitHubSetupHtml(): string {
+function getGitHubSetupHtml(version: string): string {
   return `<!DOCTYPE html>
 <html>
 <head>
@@ -220,6 +220,7 @@ function getGitHubSetupHtml(): string {
   </style>
 </head>
 <body>
+  <p style="font-size:11px;color:var(--vscode-descriptionForeground);margin-bottom:16px">Zendoc v${version}</p>
   <div id="install-step">
     <h2>One more thing</h2>
     <p style="color:var(--vscode-descriptionForeground)">
@@ -408,14 +409,15 @@ async function runGitHubConnect(targetPath: string, repoUrl: string): Promise<vo
 }
 
 function showGitHubSetupPanel(context: vscode.ExtensionContext, targetPath: string): void {
+  const version = context.extension.packageJSON?.version || '0.1.8';
   const panel = vscode.window.createWebviewPanel(
     'zendoc.githubSetup',
-    'Set up GitHub backup',
+    `Set up GitHub backup (v${version})`,
     vscode.ViewColumn.One,
     { enableScripts: true, retainContextWhenHidden: true }
   );
 
-  panel.webview.html = getGitHubSetupHtml();
+  panel.webview.html = getGitHubSetupHtml(version);
 
   panel.webview.onDidReceiveMessage(async (message: { type: string; url?: string }) => {
     if (message.type === 'enableBackup') {
