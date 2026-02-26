@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 const POLL_INTERVAL_MS = 30000;
 
@@ -68,7 +69,7 @@ export default function SharePage({ params }: { params: { key: string } }) {
         {polling && <span>Updating...</span>}
       </div>
       <article className="prose prose-gray max-w-none">
-        <ReactMarkdown>{content}</ReactMarkdown>
+        <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
       </article>
     </div>
   );
