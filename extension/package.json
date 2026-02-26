@@ -2,7 +2,7 @@
   "name": "yms-zendoc",
   "displayName": "Zendoc for Cursor",
   "description": "Distraction-free writing, powered by AI. Turns Cursor into a writing platform with auto-backup to GitHub.",
-  "version": "0.1.17",
+  "version": "0.1.18",
   "publisher": "YMSDynamics",
   "repository": {
     "type": "git",

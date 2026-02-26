@@ -335,8 +335,11 @@ function getGitHubSetupHtml(version) {
       } else if (type === 'success') {
         installStep.style.display = 'none';
         connectStep.style.display = 'none';
-        document.getElementById('success-step').style.display = 'block';
+        document.getElementById('success-backup-step').style.display = 'block';
         document.getElementById('success-msg').textContent = message;
+      } else if (type === 'showSharingStep') {
+        document.getElementById('success-backup-step').style.display = 'none';
+        document.getElementById('sharing-step').style.display = 'block';
       } else if (type === 'error') {
         msgEl.textContent = message;
         msgEl.className = 'error';
