@@ -520,44 +520,10 @@ export function activate(context: vscode.ExtensionContext) {
         log('Starting Create Workspace wizard...');
 
         const documentsPath = path.join(os.homedir(), 'Documents');
-        let workspacePath = path.join(documentsPath, 'zendoc');
+        const workspacePath = path.join(documentsPath, 'zendoc');
 
         if (fs.existsSync(workspacePath)) {
-          const pickOther = await vscode.window.showErrorMessage(
-            `${workspacePath} already exists.`,
-            'Choose another location'
-          );
-          if (pickOther !== 'Choose another location') {
-            log('User cancelled');
-            return;
-          }
-          const defaultUri = fs.existsSync(documentsPath) ? vscode.Uri.file(documentsPath) : undefined;
-          const folderUris = await vscode.window.showOpenDialog({
-            canSelectFolders: true,
-            canSelectMany: false,
-            title: 'Choose folder',
-            openLabel: 'Select',
-            defaultUri,
-          });
-          if (!folderUris?.length) {
-            log('User cancelled');
-            return;
-          }
-          const workspaceName = await vscode.window.showInputBox({
-            prompt: 'Workspace name',
-            value: 'zendoc',
-            validateInput: (v) => (!/^[a-zA-Z0-9_-]+$/.test(v) ? 'Letters, numbers, hyphens, underscores only' : null),
-          });
-          if (!workspaceName) return;
-          workspacePath = path.join(folderUris[0].fsPath, workspaceName);
-          if (fs.existsSync(workspacePath)) {
-            vscode.window.showErrorMessage(`Folder already exists: ${workspacePath}`);
-            return;
-          }
-        }
-        if (fs.existsSync(workspacePath)) {
-          vscode.window.showErrorMessage(`Folder already exists: ${workspacePath}`);
-          return;
+          log(`Using existing workspace at ${workspacePath}`);
         }
 
         vscode.window.showInformationMessage('Creating workspace...');
