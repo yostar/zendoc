@@ -102,6 +102,20 @@ async function checkGitAvailable() {
 function runXcodeSelectInstall() {
     (0, child_process_1.spawn)('xcode-select', ['--install'], { stdio: 'ignore', detached: true }).unref();
 }
+function openWorkspaceInZendocProfile(workspacePath) {
+    const cliPath = getCliPath();
+    log(`Opening ${workspacePath} in ${ZENDOC_PROFILE} profile`);
+    const proc = (0, child_process_1.spawn)(cliPath, [workspacePath, '--profile', ZENDOC_PROFILE], {
+        stdio: 'ignore',
+        detached: true,
+        env: process.env,
+    });
+    proc.unref();
+    proc.on('error', (err) => {
+        log(`Failed to open workspace: ${err.message}`);
+        vscode.window.showErrorMessage(`Could not open Zendoc window: ${err.message}`);
+    });
+}
 function getWelcomePanelHtml() {
     return `<!DOCTYPE html>
 <html>
@@ -198,18 +212,21 @@ function getGitHubSetupHtml() {
   </style>
 </head>
 <body>
-  <div id="install-step" style="display:none">
+  <div id="install-step">
     <h2>One more thing</h2>
-    <p style="color:var(--vscode-descriptionForeground)">
-      Before connecting to GitHub, we need to install a small tool on your computer.
-    </p>
-    <p id="install-wait-msg" style="display:none;margin-top:12px;font-size:13px;color:var(--vscode-descriptionForeground)">
-      A window should have opened. Click Install in that window, wait for it to finish, then click Try again below.
-    </p>
-    <button id="install-btn" style="margin-top:12px">Install</button>
-    <button id="try-again-btn" style="margin-top:12px;margin-left:8px;display:none">Try again</button>
+    <p id="checking-msg" style="color:var(--vscode-descriptionForeground)">Checking...</p>
+    <div id="install-prompt" style="display:none">
+      <p style="color:var(--vscode-descriptionForeground)">
+        Before connecting to GitHub, we need to install a small tool on your computer.
+      </p>
+      <p id="install-wait-msg" style="display:none;margin-top:12px;font-size:13px;color:var(--vscode-descriptionForeground)">
+        A window should have opened. Click Install in that window, wait for it to finish, then click Try again below.
+      </p>
+      <button id="install-btn" style="margin-top:12px">Install</button>
+      <button id="try-again-btn" style="margin-top:12px;margin-left:8px;display:none">Try again</button>
+    </div>
   </div>
-  <div id="connect-step">
+  <div id="connect-step" style="display:none">
     <h2>Connect to GitHub</h2>
     <ol>
       <li>Create an empty repo at <a href="#" id="open-github">github.com/new</a> (no README, .gitignore, or license)</li>
@@ -246,12 +263,17 @@ function getGitHubSetupHtml() {
       const installStep = document.getElementById('install-step');
       const connectStep = document.getElementById('connect-step');
       if (type === 'showInstallStep') {
+        document.getElementById('checking-msg').style.display = 'none';
+        document.getElementById('install-prompt').style.display = 'block';
         installStep.style.display = 'block';
         connectStep.style.display = 'none';
       } else if (type === 'showConnectStep') {
+        document.getElementById('checking-msg').style.display = 'none';
+        document.getElementById('install-prompt').style.display = 'none';
         installStep.style.display = 'none';
         connectStep.style.display = 'block';
       } else if (type === 'installTriggered') {
+        document.getElementById('install-prompt').style.display = 'block';
         document.getElementById('install-wait-msg').style.display = 'block';
         document.getElementById('install-btn').style.display = 'none';
         document.getElementById('try-again-btn').style.display = 'inline-block';
@@ -522,15 +544,13 @@ function activate(context) {
                 await copyDir(templatePath, workspacePath);
                 // GitHub setup skipped for now (use zendoc.setupBackup command later if needed)
                 log('GitHub setup skipped');
-                const cliPath = getCliPath();
-                log(`Using CLI: ${cliPath}`);
                 // 1. Open workspace FIRST—creates Zendoc profile so install-extension can target it
                 vscode.window.showInformationMessage('Opening workspace in Zendoc profile...');
-                await runCommand(`"${cliPath}" "${workspacePath}" --profile "${ZENDOC_PROFILE}"`);
-                log(`Opened ${workspacePath} in ${ZENDOC_PROFILE} profile`);
+                openWorkspaceInZendocProfile(workspacePath);
                 // 2. Brief delay so profile is fully created, then install extensions
                 await new Promise((resolve) => setTimeout(resolve, 1500));
                 vscode.window.showInformationMessage('Installing extensions...');
+                const cliPath = getCliPath();
                 for (const extId of REQUIRED_EXTENSIONS) {
                     try {
                         await runCommand(`"${cliPath}" --install-extension ${extId} --profile "${ZENDOC_PROFILE}"`);
@@ -549,7 +569,7 @@ function activate(context) {
                 await new Promise((r) => setTimeout(r, 500));
                 vscode.window.showInformationMessage('Zendoc workspace ready! A new window should have opened—check for it.', 'Open Zendoc').then((sel) => {
                     if (sel === 'Open Zendoc') {
-                        runCommand(`"${getCliPath()}" "${workspacePath}" --profile "${ZENDOC_PROFILE}"`);
+                        openWorkspaceInZendocProfile(workspacePath);
                     }
                 });
             }

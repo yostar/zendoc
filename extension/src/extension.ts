@@ -220,18 +220,21 @@ function getGitHubSetupHtml(): string {
   </style>
 </head>
 <body>
-  <div id="install-step" style="display:none">
+  <div id="install-step">
     <h2>One more thing</h2>
-    <p style="color:var(--vscode-descriptionForeground)">
-      Before connecting to GitHub, we need to install a small tool on your computer.
-    </p>
-    <p id="install-wait-msg" style="display:none;margin-top:12px;font-size:13px;color:var(--vscode-descriptionForeground)">
-      A window should have opened. Click Install in that window, wait for it to finish, then click Try again below.
-    </p>
-    <button id="install-btn" style="margin-top:12px">Install</button>
-    <button id="try-again-btn" style="margin-top:12px;margin-left:8px;display:none">Try again</button>
+    <p id="checking-msg" style="color:var(--vscode-descriptionForeground)">Checking...</p>
+    <div id="install-prompt" style="display:none">
+      <p style="color:var(--vscode-descriptionForeground)">
+        Before connecting to GitHub, we need to install a small tool on your computer.
+      </p>
+      <p id="install-wait-msg" style="display:none;margin-top:12px;font-size:13px;color:var(--vscode-descriptionForeground)">
+        A window should have opened. Click Install in that window, wait for it to finish, then click Try again below.
+      </p>
+      <button id="install-btn" style="margin-top:12px">Install</button>
+      <button id="try-again-btn" style="margin-top:12px;margin-left:8px;display:none">Try again</button>
+    </div>
   </div>
-  <div id="connect-step">
+  <div id="connect-step" style="display:none">
     <h2>Connect to GitHub</h2>
     <ol>
       <li>Create an empty repo at <a href="#" id="open-github">github.com/new</a> (no README, .gitignore, or license)</li>
@@ -268,12 +271,17 @@ function getGitHubSetupHtml(): string {
       const installStep = document.getElementById('install-step');
       const connectStep = document.getElementById('connect-step');
       if (type === 'showInstallStep') {
+        document.getElementById('checking-msg').style.display = 'none';
+        document.getElementById('install-prompt').style.display = 'block';
         installStep.style.display = 'block';
         connectStep.style.display = 'none';
       } else if (type === 'showConnectStep') {
+        document.getElementById('checking-msg').style.display = 'none';
+        document.getElementById('install-prompt').style.display = 'none';
         installStep.style.display = 'none';
         connectStep.style.display = 'block';
       } else if (type === 'installTriggered') {
+        document.getElementById('install-prompt').style.display = 'block';
         document.getElementById('install-wait-msg').style.display = 'block';
         document.getElementById('install-btn').style.display = 'none';
         document.getElementById('try-again-btn').style.display = 'inline-block';
