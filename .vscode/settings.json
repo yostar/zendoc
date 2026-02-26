@@ -1,8 +1,6 @@
 {
   "files.exclude": {
-    "**/.*": true,
-    "**/.*/**": true,
-    "**/AGENTS.md": true
+
   },
   "explorer.confirmDelete": true,
   "files.enableTrash": true,
