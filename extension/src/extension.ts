@@ -13,8 +13,8 @@ const REQUIRED_EXTENSIONS = [
   'vsls-contrib.gitdoc',
   'yzhang.markdown-all-in-one',
   'concretio.markdown-for-humans',
-  'YMSDynamics.yms-zendoc', // Needed in Zendoc profile so new window runs layout + GitHub setup
 ];
+// Don't add yms-zendoc—install-extension pulls from marketplace and overwrites the user's .vsix
 
 let outputChannel: vscode.OutputChannel;
 let welcomePanelToCloseOnCreate: vscode.WebviewPanel | undefined;
