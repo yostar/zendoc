@@ -17,9 +17,10 @@ export async function POST(request: NextRequest) {
     const shareKey = nanoid(12);
     const share = await createShare(repo_full_name.trim(), file_path.trim(), shareKey);
 
-    const baseUrl = process.env.VERCEL_URL
-      ? `https://${process.env.VERCEL_URL}`
-      : process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    const baseUrl =
+      process.env.APP_URL ||
+      process.env.NEXT_PUBLIC_APP_URL ||
+      (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
     const url = `${baseUrl}/s/${share.share_key}`;
 
     return NextResponse.json({ url, share_key: share.share_key });

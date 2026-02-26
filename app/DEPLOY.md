@@ -35,6 +35,7 @@ CREATE INDEX idx_shares_key ON shares(share_key);
 4. Add Environment Variables:
    - `DATABASE_URL` – Neon connection string
    - `GITHUB_ZENDOC_BOT_TOKEN` – ZendocBot GitHub PAT (fine-grained, Contents read)
+   - `APP_URL` – Canonical share URL (e.g. `https://zendoc-mu.vercel.app`) so share links use this instead of deployment-specific URLs
 5. Deploy.
 
 ### Option B: Vercel CLI
@@ -43,7 +44,8 @@ CREATE INDEX idx_shares_key ON shares(share_key);
 2. `npx vercel login` (if not logged in)
 3. `npx vercel env add DATABASE_URL` – paste Neon connection string
 4. `npx vercel env add GITHUB_ZENDOC_BOT_TOKEN` – paste ZendocBot token
-5. `npx vercel deploy --prod`
+5. `npx vercel env add APP_URL` – set to your canonical URL (e.g. `https://zendoc-mu.vercel.app`)
+6. `npx vercel deploy --prod`
 
 ## 3. Extension configuration
 
