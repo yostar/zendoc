@@ -745,19 +745,13 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(watcher);
   }
 
-  // Prompt to create workspace when not already in one (session-based so it shows after install/reload)
+  // Show welcome webview when not already in a Zendoc workspace (session-based so it shows after install/reload)
   const isZendocWorkspace = folder
     ? fs.existsSync(vscode.Uri.joinPath(folder.uri, 'Welcome.md').fsPath)
     : false;
   if (!hasShownSessionWelcome && !isZendocWorkspace) {
     hasShownSessionWelcome = true;
-    vscode.window
-      .showInformationMessage('Zendoc is ready. Create your writing workspace.', 'Create workspace')
-      .then((selection) => {
-        if (selection === 'Create workspace') {
-          vscode.commands.executeCommand('zendoc.createWorkspace');
-        }
-      });
+    showWelcomePanel(context);
   }
   } catch (err) {
     console.error('[Zendoc] Activation failed:', err);
