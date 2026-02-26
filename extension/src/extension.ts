@@ -10,11 +10,11 @@ const execAsync = promisify(exec);
 const ZENDOC_PROFILE = 'Zendoc';
 const ZENDOC_BOT_USERNAME = 'ZendocBot';
 const REQUIRED_EXTENSIONS = [
+  'YMSDynamics.yms-zendoc',
   'vsls-contrib.gitdoc',
   'yzhang.markdown-all-in-one',
   'concretio.markdown-for-humans',
 ];
-// Don't add yms-zendoc—install-extension pulls from marketplace and overwrites the user's .vsix
 
 let outputChannel: vscode.OutputChannel;
 let welcomePanelToCloseOnCreate: vscode.WebviewPanel | undefined;
@@ -630,24 +630,16 @@ export function activate(context: vscode.ExtensionContext) {
         // 1. Open workspace FIRST—creates Zendoc profile so install-extension can target it
         openWorkspaceInZendocProfile(workspacePath);
 
-        // 2. Wait for profile to exist, then install extensions (profile is created when the new window starts)
+        // 2. Brief delay so profile is created when the new window starts, then install extensions
         const cliPath = getCliPath();
-        const maxAttempts = 5;
-        const retryDelayMs = 2500;
-        for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-          await new Promise((r) => setTimeout(r, attempt === 1 ? 3500 : retryDelayMs));
-          let allOk = true;
+        const installExts = async () => {
           for (const extId of REQUIRED_EXTENSIONS) {
             try {
               await runCommand(`"${cliPath}" --install-extension ${extId} --profile "${ZENDOC_PROFILE}"`);
               log(`Installed for ${ZENDOC_PROFILE}: ${extId}`);
             } catch (err) {
               const msg = String(err);
-              if (/profile.*not found|Profile.*not found/i.test(msg) && attempt < maxAttempts) {
-                log(`Profile not ready (attempt ${attempt}/${maxAttempts}), retrying...`);
-                allOk = false;
-                break;
-              }
+              if (/profile.*not found/i.test(msg)) throw err;
               log(`Failed to install ${extId}: ${err}`);
               vscode.window.showWarningMessage(
                 `Could not install ${extId}. Install recommended extensions in the Zendoc window when prompted.`,
@@ -655,7 +647,16 @@ export function activate(context: vscode.ExtensionContext) {
               );
             }
           }
-          if (allOk) break;
+        };
+        try {
+          await new Promise((r) => setTimeout(r, 1500));
+          await installExts();
+        } catch (e) {
+          if (/profile.*not found/i.test(String(e))) {
+            log('Profile not ready, retrying after 2s...');
+            await new Promise((r) => setTimeout(r, 2000));
+            await installExts();
+          } else throw e;
         }
 
         if (welcomePanelToCloseOnCreate) {
