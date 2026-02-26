@@ -76,12 +76,23 @@ async function runCommand(cmd: string, cwd?: string): Promise<{ stdout: string; 
   }
 }
 
+function isXcodeSelectError(err: unknown): boolean {
+  const msg = err instanceof Error ? err.message : String(err);
+  return /invalid active developer path|xcrun|Xcode/i.test(msg);
+}
+
 async function checkGitAvailable(): Promise<boolean> {
+  const tmpDir = path.join(os.tmpdir(), `zendoc-git-check-${Date.now()}`);
   try {
-    await execAsync('git --version', { env: { ...process.env, GIT_TERMINAL_PROMPT: '0' } });
+    await fs.promises.mkdir(tmpDir, { recursive: true });
+    await execAsync('git init', { cwd: tmpDir, env: { ...process.env, GIT_TERMINAL_PROMPT: '0' } });
     return true;
   } catch {
     return false;
+  } finally {
+    try {
+      await fs.promises.rm(tmpDir, { recursive: true, force: true });
+    } catch (_) {}
   }
 }
 
@@ -409,10 +420,15 @@ function showGitHubSetupPanel(context: vscode.ExtensionContext, targetPath: stri
       } catch (error) {
         const msg = error instanceof Error ? error.message : String(error);
         log(`GitHub setup failed: ${msg}`);
-        const userMsg = msg.includes('already exists')
-          ? 'A remote named "origin" already exists. Remove it first.'
-          : `Failed: ${msg}. When you push, use a Personal Access Token (github.com/settings/tokens).`;
-        panel.webview.postMessage({ type: 'error', message: userMsg });
+        if (isXcodeSelectError(error)) {
+          panel.webview.postMessage({ type: 'showInstallStep' });
+          vscode.window.showErrorMessage('A tool needs to be installed first. Follow the instructions in the panel.');
+        } else {
+          const userMsg = msg.includes('already exists')
+            ? 'A remote named "origin" already exists. Remove it first.'
+            : `Failed: ${msg}. When you push, use a Personal Access Token (github.com/settings/tokens).`;
+          panel.webview.postMessage({ type: 'error', message: userMsg });
+        }
       }
     } else if (message.type === 'grantSharing') {
       try {
