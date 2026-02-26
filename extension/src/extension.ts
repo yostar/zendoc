@@ -296,7 +296,7 @@ function getGitHubSetupHtml(version: string): string {
   </div>
   <div id="connect-step" style="display:none">
     <h2>Set up GitHub backup</h2>
-    <p style="font-size:13px;color:var(--vscode-descriptionForeground);margin-bottom:12px">First time? A browser will open to log in to GitHub when you click Connect.</p>
+    <p style="font-size:13px;color:var(--vscode-descriptionForeground);margin-bottom:12px">First time? You'll be asked to sign in to GitHub when you click Connect.</p>
     <ol>
       <li>Create an empty repo at <a href="#" id="open-github">github.com/new</a> (no README, .gitignore, or license)</li>
       <li>Copy the repo URL from the page</li>
@@ -452,39 +452,34 @@ async function isZendocBotCollaborator(owner: string, repo: string, token: strin
   }
 }
 
-function isGitAuthError(err: unknown): boolean {
-  const msg = String(err);
-  return /could not read Username|Device not configured|Authentication failed|Permission denied/i.test(msg);
+/** Get GitHub token via Cursor's built-in auth (opens browser if needed). No extra tools required. */
+async function getGitHubTokenFromAuth(): Promise<string> {
+  const session = await vscode.authentication.getSession('github', ['repo'], { createIfNone: true });
+  if (!session?.accessToken) {
+    throw new Error('Could not get GitHub authentication. Please try again.');
+  }
+  return session.accessToken;
 }
 
-async function ensureGitHubAuth(): Promise<void> {
-  try {
-    await runCommand('gh auth status');
-    return;
-  } catch {
-    // Not logged in — run gh auth login (opens browser) if gh is available
-  }
-  try {
-    await runCommand('gh --version');
-  } catch {
-    throw new Error(
-      'GitHub CLI (gh) is not installed. Install it: brew install gh. Then run "gh auth login" in a terminal, or use a Personal Access Token at github.com/settings/tokens.'
-    );
-  }
-  vscode.window.showInformationMessage(
-    'A browser will open to log in to GitHub. Complete the login to continue.',
-    { modal: false }
-  );
-  await runCommand('gh auth login --web --git-protocol https');
+/** Build auth URL for git push: https://TOKEN@github.com/owner/repo.git */
+function buildAuthUrl(repoUrl: string, token: string): string {
+  const clean = repoUrl.trim().replace(/\.git$/, '');
+  const match = clean.match(/github\.com[/:]([\w.-]+)\/([\w.-]+)/);
+  if (!match) throw new Error('Invalid GitHub URL');
+  const [, owner, repo] = match;
+  return `https://${token}@github.com/${owner}/${repo}.git`;
 }
 
 async function runGitHubConnect(targetPath: string, repoUrl: string): Promise<void> {
+  const token = await getGitHubTokenFromAuth();
+  const authUrl = buildAuthUrl(repoUrl, token);
+
   const gitDir = path.join(targetPath, '.git');
   if (!fs.existsSync(gitDir)) {
     await runCommand('git init', targetPath);
   }
-  const url = repoUrl.trim().replace(/\.git$/, '') + '.git';
-  await runCommand(`git remote add origin ${url}`, targetPath);
+  const cleanUrl = repoUrl.trim().replace(/\.git$/, '') + '.git';
+  await runCommand(`git remote add origin ${cleanUrl}`, targetPath);
   try {
     await runCommand('git rev-parse HEAD', targetPath);
   } catch {
@@ -494,14 +489,10 @@ async function runGitHubConnect(targetPath: string, repoUrl: string): Promise<vo
   await runCommand('git branch -M main', targetPath);
 
   try {
+    await runCommand(`git remote set-url origin '${authUrl.replace(/'/g, "'\\''")}'`, targetPath);
     await runCommand('git push -u origin main', targetPath);
-  } catch (pushErr) {
-    if (isGitAuthError(pushErr)) {
-      await ensureGitHubAuth();
-      await runCommand('git push -u origin main', targetPath);
-    } else {
-      throw pushErr;
-    }
+  } finally {
+    await runCommand(`git remote set-url origin '${cleanUrl}'`, targetPath);
   }
 }
 
