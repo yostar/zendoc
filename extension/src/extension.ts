@@ -100,6 +100,21 @@ function runXcodeSelectInstall(): void {
   spawn('xcode-select', ['--install'], { stdio: 'ignore', detached: true }).unref();
 }
 
+function openWorkspaceInZendocProfile(workspacePath: string): void {
+  const cliPath = getCliPath();
+  log(`Opening ${workspacePath} in ${ZENDOC_PROFILE} profile`);
+  const proc = spawn(cliPath, [workspacePath, '--profile', ZENDOC_PROFILE], {
+    stdio: 'ignore',
+    detached: true,
+    env: process.env,
+  });
+  proc.unref();
+  proc.on('error', (err) => {
+    log(`Failed to open workspace: ${err.message}`);
+    vscode.window.showErrorMessage(`Could not open Zendoc window: ${err.message}`);
+  });
+}
+
 function getWelcomePanelHtml(): string {
   return `<!DOCTYPE html>
 <html>
@@ -535,17 +550,14 @@ export function activate(context: vscode.ExtensionContext) {
         // GitHub setup skipped for now (use zendoc.setupBackup command later if needed)
         log('GitHub setup skipped');
 
-        const cliPath = getCliPath();
-        log(`Using CLI: ${cliPath}`);
-
         // 1. Open workspace FIRST—creates Zendoc profile so install-extension can target it
         vscode.window.showInformationMessage('Opening workspace in Zendoc profile...');
-        await runCommand(`"${cliPath}" "${workspacePath}" --profile "${ZENDOC_PROFILE}"`);
-        log(`Opened ${workspacePath} in ${ZENDOC_PROFILE} profile`);
+        openWorkspaceInZendocProfile(workspacePath);
 
         // 2. Brief delay so profile is fully created, then install extensions
         await new Promise((resolve) => setTimeout(resolve, 1500));
         vscode.window.showInformationMessage('Installing extensions...');
+        const cliPath = getCliPath();
         for (const extId of REQUIRED_EXTENSIONS) {
           try {
             await runCommand(`"${cliPath}" --install-extension ${extId} --profile "${ZENDOC_PROFILE}"`);
@@ -571,7 +583,7 @@ export function activate(context: vscode.ExtensionContext) {
           'Open Zendoc'
         ).then((sel) => {
           if (sel === 'Open Zendoc') {
-            runCommand(`"${getCliPath()}" "${workspacePath}" --profile "${ZENDOC_PROFILE}"`);
+            openWorkspaceInZendocProfile(workspacePath);
           }
         });
       } catch (error) {
