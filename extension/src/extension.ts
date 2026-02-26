@@ -520,11 +520,30 @@ async function runGitHubConnect(targetPath: string, repoUrl: string): Promise<vo
 
 async function openWelcomeMd(workspacePath: string): Promise<void> {
   const welcomePath = vscode.Uri.joinPath(vscode.Uri.file(workspacePath), 'Welcome.md');
+  const gitignorePath = vscode.Uri.joinPath(vscode.Uri.file(workspacePath), '.gitignore');
   try {
     await vscode.commands.executeCommand('markdownForHumans.openFile', welcomePath);
   } catch (_) {
     const doc = await vscode.workspace.openTextDocument(welcomePath);
     await vscode.window.showTextDocument(doc, { preview: false });
+  }
+  // Workaround: initial open shows plain markdown; switching away and back fixes rendering
+  await new Promise((r) => setTimeout(r, 300));
+  try {
+    const otherDoc = await vscode.workspace.openTextDocument(gitignorePath);
+    await vscode.window.showTextDocument(otherDoc, { preview: false });
+    await new Promise((r) => setTimeout(r, 150));
+    await vscode.commands.executeCommand('markdownForHumans.openFile', welcomePath);
+    const gitignoreTab = vscode.window.tabGroups.all
+      .flatMap((g) => g.tabs)
+      .find((t) => t.input instanceof vscode.TabInputText && t.input.uri.fsPath === gitignorePath.fsPath);
+    if (gitignoreTab) {
+      await vscode.window.tabGroups.close(gitignoreTab);
+    }
+  } catch (_) {
+    try {
+      await vscode.commands.executeCommand('markdownForHumans.openFile', welcomePath);
+    } catch (_) {}
   }
 }
 
