@@ -76,6 +76,19 @@ async function runCommand(cmd: string, cwd?: string): Promise<{ stdout: string; 
   }
 }
 
+async function checkGitAvailable(): Promise<boolean> {
+  try {
+    await execAsync('git --version', { env: { ...process.env, GIT_TERMINAL_PROMPT: '0' } });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function runXcodeSelectInstall(): void {
+  spawn('xcode-select', ['--install'], { stdio: 'ignore', detached: true }).unref();
+}
+
 function getWelcomePanelHtml(): string {
   return `<!DOCTYPE html>
 <html>
@@ -181,6 +194,17 @@ function getGitHubSetupHtml(): string {
   </style>
 </head>
 <body>
+  <div id="install-step" style="display:none">
+    <h2>One more thing</h2>
+    <p style="color:var(--vscode-descriptionForeground)">
+      Before connecting to GitHub, we need to install a small tool on your computer.
+    </p>
+    <p id="install-wait-msg" style="display:none;margin-top:12px;font-size:13px;color:var(--vscode-descriptionForeground)">
+      A window should have opened. Click Install in that window, wait for it to finish, then click Try again below.
+    </p>
+    <button id="install-btn" style="margin-top:12px">Install</button>
+    <button id="try-again-btn" style="margin-top:12px;margin-left:8px;display:none">Try again</button>
+  </div>
   <div id="connect-step">
     <h2>Connect to GitHub</h2>
     <ol>
@@ -215,8 +239,21 @@ function getGitHubSetupHtml(): string {
       const btn = document.getElementById('connect');
       const sharingStatus = document.getElementById('sharing-status');
       const grantBtn = document.getElementById('grant-sharing');
-      if (type === 'success') {
-        document.getElementById('connect-step').style.display = 'none';
+      const installStep = document.getElementById('install-step');
+      const connectStep = document.getElementById('connect-step');
+      if (type === 'showInstallStep') {
+        installStep.style.display = 'block';
+        connectStep.style.display = 'none';
+      } else if (type === 'showConnectStep') {
+        installStep.style.display = 'none';
+        connectStep.style.display = 'block';
+      } else if (type === 'installTriggered') {
+        document.getElementById('install-wait-msg').style.display = 'block';
+        document.getElementById('install-btn').style.display = 'none';
+        document.getElementById('try-again-btn').style.display = 'inline-block';
+      } else if (type === 'success') {
+        installStep.style.display = 'none';
+        connectStep.style.display = 'none';
         document.getElementById('success-step').style.display = 'block';
         document.getElementById('success-msg').textContent = message;
       } else if (type === 'error') {
@@ -260,6 +297,12 @@ function getGitHubSetupHtml(): string {
     };
     document.getElementById('grant-sharing').onclick = () => {
       vscode.postMessage({ type: 'grantSharing' });
+    };
+    document.getElementById('install-btn').onclick = () => {
+      vscode.postMessage({ type: 'installTools' });
+    };
+    document.getElementById('try-again-btn').onclick = () => {
+      vscode.postMessage({ type: 'checkGitAgain' });
     };
   </script>
 </body>
@@ -310,6 +353,10 @@ async function isZendocBotCollaborator(owner: string, repo: string, token: strin
 }
 
 async function runGitHubConnect(targetPath: string, repoUrl: string): Promise<void> {
+  const gitDir = path.join(targetPath, '.git');
+  if (!fs.existsSync(gitDir)) {
+    await runCommand('git init', targetPath);
+  }
   const url = repoUrl.trim().replace(/\.git$/, '') + '.git';
   await runCommand(`git remote add origin ${url}`, targetPath);
   try {
@@ -342,6 +389,13 @@ function showGitHubSetupPanel(context: vscode.ExtensionContext, targetPath: stri
         log(`GitDoc enable failed: ${e}`);
         vscode.window.showErrorMessage('Could not enable GitDoc. Run "GitDoc: Enable" from the Command Palette.');
       }
+    } else if (message.type === 'installTools') {
+      runXcodeSelectInstall();
+      panel.webview.postMessage({ type: 'installTriggered' });
+      vscode.window.showInformationMessage('A window should open. Click Install, wait for it to finish, then click Try again in the panel.');
+    } else if (message.type === 'checkGitAgain') {
+      const ok = await checkGitAvailable();
+      panel.webview.postMessage({ type: ok ? 'showConnectStep' : 'showInstallStep' });
     } else if (message.type === 'openGitHub') {
       vscode.env.openExternal(vscode.Uri.parse('https://github.com/new'));
     } else if (message.type === 'connect' && message.url) {
@@ -495,9 +549,6 @@ export function activate(context: vscode.ExtensionContext) {
 
         const templatePath = path.join(context.extensionPath, 'resources', 'template');
         await copyDir(templatePath, workspacePath);
-
-        await runCommand('git init', workspacePath);
-        log('Git initialized');
 
         // GitHub setup skipped for now (use zendoc.setupBackup command later if needed)
         log('GitHub setup skipped');
