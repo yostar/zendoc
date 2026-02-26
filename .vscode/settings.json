@@ -41,5 +41,5 @@
     "editorGroupHeader.tabsActiveBackground": "#f5f3f0",
     "editorGroupHeader.tabsInactiveBackground": "#f5f3f0"
   },
-  
+  "zendoc.shareApiUrl": "https://zendoc-mu.vercel.app"
 }

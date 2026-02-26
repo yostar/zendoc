@@ -62,7 +62,7 @@
       "properties": {
         "zendoc.shareApiUrl": {
           "type": "string",
-          "default": "https://app.zendoc.org",
+          "default": "https://zendoc-mu.vercel.app",
           "description": "Base URL for the Zendoc share service (e.g. your Vercel deployment)"
         }
       }
