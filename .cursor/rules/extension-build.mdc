@@ -6,15 +6,11 @@ alwaysApply: false
 
 # Extension Build Workflow
 
-## Regular Changes (non-publish)
+## Packaging (each time we make changes)
 
 When making changes to the extension:
+- **Bump the version** in `package.json` (e.g. 0.1.8 → 0.1.9)
 - Run `npm run compile` in the extension folder
-- Run `vsce package` to produce the .vsix
-- **Keep the same version and file name** (overwrites existing .vsix, e.g. `yms-zendoc-0.1.7.vsix`)
+- Run `vsce package` to produce the .vsix (e.g. `yms-zendoc-0.1.9.vsix`)
 
-## Publish Only
-
-When the user explicitly asks to **publish** the extension:
-- Bump the version in `package.json`
-- Compile and package to the new file name (e.g. `yms-zendoc-0.1.8.vsix`)
+Bumping version each time avoids Cursor cache issues when testing on another machine.
