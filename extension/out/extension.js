@@ -223,9 +223,10 @@ function getGitHubSetupHtml() {
     <p id="install-error-msg" style="display:none;margin-top:8px;font-size:13px;color:var(--vscode-errorForeground)"></p>
     <button id="install-btn" style="margin-top:12px">Install</button>
     <button id="continue-btn" style="margin-top:12px;margin-left:8px">Continue</button>
+    <button id="maybe-later-btn" style="margin-top:12px;margin-left:8px;background:transparent;border:1px solid var(--vscode-button-border)">Maybe later</button>
   </div>
   <div id="connect-step" style="display:none">
-    <h2>Connect to GitHub</h2>
+    <h2>Setup GitHub Backup</h2>
     <ol>
       <li>Create an empty repo at <a href="#" id="open-github">github.com/new</a> (no README, .gitignore, or license)</li>
       <li>Copy the repo URL from the page</li>
@@ -234,6 +235,7 @@ function getGitHubSetupHtml() {
     <input type="text" id="repo-url" placeholder="https://github.com/username/repo-name.git" />
     <div id="message"></div>
     <button id="connect">Connect</button>
+    <button id="maybe-later-btn-connect" style="margin-top:12px;margin-left:8px;background:transparent;border:1px solid var(--vscode-button-border)">Maybe later</button>
   </div>
   <div id="success-step" style="display:none">
     <h2>Connected to GitHub</h2>
@@ -261,20 +263,18 @@ function getGitHubSetupHtml() {
       const installStep = document.getElementById('install-step');
       const connectStep = document.getElementById('connect-step');
       if (type === 'showInstallStep') {
-        document.getElementById('checking-msg').style.display = 'none';
-        document.getElementById('install-prompt').style.display = 'block';
         installStep.style.display = 'block';
         connectStep.style.display = 'none';
+        const errEl = document.getElementById('install-error-msg');
+        errEl.style.display = message ? 'block' : 'none';
+        errEl.textContent = message || '';
       } else if (type === 'showConnectStep') {
-        document.getElementById('checking-msg').style.display = 'none';
-        document.getElementById('install-prompt').style.display = 'none';
         installStep.style.display = 'none';
         connectStep.style.display = 'block';
+        document.getElementById('install-error-msg').style.display = 'none';
       } else if (type === 'installTriggered') {
-        document.getElementById('install-prompt').style.display = 'block';
         document.getElementById('install-wait-msg').style.display = 'block';
         document.getElementById('install-btn').style.display = 'none';
-        document.getElementById('try-again-btn').style.display = 'inline-block';
       } else if (type === 'success') {
         installStep.style.display = 'none';
         connectStep.style.display = 'none';
@@ -327,6 +327,12 @@ function getGitHubSetupHtml() {
     };
     document.getElementById('continue-btn').onclick = () => {
       vscode.postMessage({ type: 'checkGitAgain' });
+    };
+    document.getElementById('maybe-later-btn').onclick = () => {
+      vscode.postMessage({ type: 'maybeLater' });
+    };
+    document.getElementById('maybe-later-btn-connect').onclick = () => {
+      vscode.postMessage({ type: 'maybeLater' });
     };
   </script>
 </body>
@@ -416,6 +422,9 @@ function showGitHubSetupPanel(context, targetPath) {
                 type: ok ? 'showConnectStep' : 'showInstallStep',
                 message: ok ? undefined : 'Install the tool first, then click Continue.',
             });
+        }
+        else if (message.type === 'maybeLater') {
+            panel.dispose();
         }
         else if (message.type === 'openGitHub') {
             vscode.env.openExternal(vscode.Uri.parse('https://github.com/new'));
