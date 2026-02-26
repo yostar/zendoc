@@ -304,7 +304,7 @@ function getGitHubSetupHtml(version: string): string {
     <input type="text" id="repo-url" placeholder="https://github.com/username/repo-name.git" />
     <div id="message"></div>
     <button id="connect">Connect</button>
-    <button id="maybe-later-btn-connect" style="margin-top:12px;margin-left:8px;background:transparent;border:1px solid var(--vscode-button-border)">Maybe later</button>
+    <button id="skip-btn-connect" style="margin-top:12px;margin-left:8px;background:transparent;border:1px solid var(--vscode-button-border)">Skip for now</button>
   </div>
   <div id="success-step" style="display:none">
     <h2>Connected to GitHub</h2>
@@ -633,7 +633,25 @@ export function activate(context: vscode.ExtensionContext) {
         // 2. Brief delay so profile is created when the new window starts, then install extensions
         const cliPath = getCliPath();
         const installExts = async () => {
+          // Install Zendoc from extension path first (preserves user's .vsix version); fallback to marketplace
+          const zendocExtId = 'YMSDynamics.yms-zendoc';
+          try {
+            const extPath = context.extensionPath.replace(/\\/g, '/');
+            await runCommand(`"${cliPath}" --install-extension "${extPath}" --profile "${ZENDOC_PROFILE}"`);
+            log(`Installed for ${ZENDOC_PROFILE}: Zendoc (from path)`);
+          } catch (_) {
+            try {
+              await runCommand(`"${cliPath}" --install-extension ${zendocExtId} --profile "${ZENDOC_PROFILE}"`);
+              log(`Installed for ${ZENDOC_PROFILE}: ${zendocExtId}`);
+            } catch (err) {
+              const msg = String(err);
+              if (/profile.*not found/i.test(msg)) throw err;
+              log(`Failed to install Zendoc: ${err}`);
+              vscode.window.showWarningMessage('Could not install Zendoc in Zendoc profile. Install from .vsix manually.', 'OK');
+            }
+          }
           for (const extId of REQUIRED_EXTENSIONS) {
+            if (extId === zendocExtId) continue;
             try {
               await runCommand(`"${cliPath}" --install-extension ${extId} --profile "${ZENDOC_PROFILE}"`);
               log(`Installed for ${ZENDOC_PROFILE}: ${extId}`);
