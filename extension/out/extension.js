@@ -10,7 +10,7 @@ const child_process_1 = require("child_process");
 const util_1 = require("util");
 const execAsync = (0, util_1.promisify)(child_process_1.exec);
 const ZENDOC_PROFILE = 'Zendoc';
-const ZENDOC_BOT_USERNAME = 'zendoc-bot';
+const ZENDOC_BOT_USERNAME = 'ZendocBot';
 const REQUIRED_EXTENSIONS = [
     'vsls-contrib.gitdoc',
     'yzhang.markdown-all-in-one',
@@ -221,7 +221,7 @@ function getGitHubSetupHtml() {
         sharingStatus.className = 'success';
         grantBtn.textContent = 'Check again';
       } else if (type === 'sharingInstructions') {
-        sharingStatus.textContent = message || 'Add zendoc-bot as a collaborator with Read access, then click Check again.';
+        sharingStatus.textContent = message || 'Add ZendocBot as a collaborator with Read access, then click Check again.';
         sharingStatus.className = '';
       }
     });
@@ -353,12 +353,12 @@ function showGitHubSetupPanel(context, targetPath) {
                 const urlOut = await execAsync('git remote get-url origin', { cwd: targetPath });
                 const repo = parseRepoFromRemote((urlOut.stdout || '').trim());
                 if (!repo) {
-                    panel.webview.postMessage({ type: 'sharingInstructions', message: 'Could not detect repo. Add zendoc-bot as a collaborator with Read access.' });
+                    panel.webview.postMessage({ type: 'sharingInstructions', message: 'Could not detect repo. Add ZendocBot as a collaborator with Read access.' });
                     return;
                 }
                 const token = await getGitHubToken();
                 if (!token) {
-                    panel.webview.postMessage({ type: 'sharingInstructions', message: 'Could not get GitHub token. Add zendoc-bot as a collaborator with Read access.' });
+                    panel.webview.postMessage({ type: 'sharingInstructions', message: 'Could not get GitHub token. Add ZendocBot as a collaborator with Read access.' });
                     vscode.env.openExternal(vscode.Uri.parse(`https://github.com/${repo.owner}/${repo.repo}/settings/access`));
                     return;
                 }
@@ -367,13 +367,13 @@ function showGitHubSetupPanel(context, targetPath) {
                     panel.webview.postMessage({ type: 'sharingGranted' });
                 }
                 else {
-                    panel.webview.postMessage({ type: 'sharingInstructions', message: 'Add zendoc-bot as a collaborator with Read access, then click Check again.' });
+                    panel.webview.postMessage({ type: 'sharingInstructions', message: 'Add ZendocBot as a collaborator with Read access, then click Check again.' });
                     vscode.env.openExternal(vscode.Uri.parse(`https://github.com/${repo.owner}/${repo.repo}/settings/access`));
                 }
             }
             catch (e) {
                 log(`grantSharing failed: ${e}`);
-                panel.webview.postMessage({ type: 'sharingInstructions', message: 'Could not check. Add zendoc-bot as a collaborator with Read access.' });
+                panel.webview.postMessage({ type: 'sharingInstructions', message: 'Could not check. Add ZendocBot as a collaborator with Read access.' });
             }
         }
     });

@@ -19,7 +19,7 @@ A **Zendoc sharing service** (server) that:
 
 ## Auth: Zendoc Bot as Read-Only Collaborator
 
-**Chosen approach:** One `zendoc-bot` GitHub user as read-only collaborator on user repos. The Zendoc service uses the bot's token to fetch files via the GitHub API.
+**Chosen approach:** One `ZendocBot` GitHub user as read-only collaborator on user repos. The Zendoc service uses the bot's token to fetch files via the GitHub API.
 
 **Trade-off:** The repo is no longer "only you"—Zendoc has read access. User explicitly opts in.
 
@@ -27,14 +27,14 @@ A **Zendoc sharing service** (server) that:
 
 1. User connects repo to GitHub (GitHub setup panel)
 2. After success: "Grant Zendoc sharing access" button appears
-3. User clicks → extension checks if `zendoc-bot` is collaborator (no `gh`; uses `git credential fill` + GitHub API)
-4. If not collaborator: opens `github.com/{owner}/{repo}/settings/access`, shows instructions to add `zendoc-bot` with Read access
+3. User clicks → extension checks if `ZendocBot` is collaborator (no `gh`; uses `git credential fill` + GitHub API)
+4. If not collaborator: opens `github.com/{owner}/{repo}/settings/access`, shows instructions to add `ZendocBot` with Read access
 5. User adds bot manually → GitHub sends invitation to bot
 6. User clicks "Check again" to re-verify
 
 ### Invitation Acceptance (Service — TODO)
 
-When a user adds `zendoc-bot` as collaborator, GitHub creates an **invitation** that the invitee (the bot) must accept. Without automation, the user sees "waiting for ZendocBot to accept."
+When a user adds `ZendocBot` as collaborator, GitHub creates an **invitation** that the invitee (the bot) must accept. Without automation, the user sees "waiting for ZendocBot to accept."
 
 **Automation (service-side):** The Zendoc backend holds the bot's token. It must accept invitations on behalf of the bot:
 
@@ -67,7 +67,7 @@ When a user adds `zendoc-bot` as collaborator, GitHub creates an **invitation** 
 
 ## User Flow
 
-1. **Enable sharing** (one-time per repo): Click "Grant Zendoc sharing access" → add `zendoc-bot` as collaborator with Read access → service auto-accepts within minutes → "Check again" to confirm.
+1. **Enable sharing** (one-time per repo): Click "Grant Zendoc sharing access" → add `ZendocBot` as collaborator with Read access → service auto-accepts within minutes → "Check again" to confirm.
 2. **Share a file**: Right-click file → "Share" → extension calls service API → service creates share, returns URL → user copies link.
 3. **View shared file**: Recipient opens URL → service fetches file from GitHub, renders Markdown → displays.
 4. **Revoke**: User removes share (UI in extension or web) → key deleted → URL stops working.
