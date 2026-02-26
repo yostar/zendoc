@@ -116,6 +116,58 @@ function openWorkspaceInZendocProfile(workspacePath) {
         vscode.window.showErrorMessage(`Could not open Zendoc window: ${err.message}`);
     });
 }
+function showWorkspaceReadyPanel(workspacePath) {
+    const panel = vscode.window.createWebviewPanel('zendoc.workspaceReady', 'Zendoc workspace ready', vscode.ViewColumn.One, { enableScripts: true });
+    panel.webview.html = getWorkspaceReadyHtml();
+    panel.webview.onDidReceiveMessage((message) => {
+        if (message.type === 'openWorkspace') {
+            openWorkspaceInZendocProfile(workspacePath);
+            panel.dispose();
+        }
+    });
+}
+function getWorkspaceReadyHtml() {
+    return `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: var(--vscode-font-family);
+      font-size: 14px;
+      padding: 32px;
+      color: var(--vscode-foreground);
+      line-height: 1.6;
+      text-align: center;
+    }
+    h2 { margin-top: 0; }
+    p { margin: 16px 0; color: var(--vscode-descriptionForeground); }
+    button {
+      padding: 14px 28px;
+      font-size: 16px;
+      background: var(--vscode-button-background);
+      color: var(--vscode-button-foreground);
+      border: none;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+    button:hover { opacity: 0.9; }
+  </style>
+</head>
+<body>
+  <h2>Your Zendoc workspace is ready</h2>
+  <p>A new window may have opened. If not, click below to open your writing space.</p>
+  <button id="open">Open Zendoc</button>
+  <script>
+    const vscode = acquireVsCodeApi();
+    document.getElementById('open').onclick = () => {
+      vscode.postMessage({ type: 'openWorkspace' });
+    };
+  </script>
+</body>
+</html>`;
+}
 function getWelcomePanelHtml() {
     return `<!DOCTYPE html>
 <html>
@@ -577,13 +629,9 @@ function activate(context) {
                     welcomePanelToCloseOnCreate.dispose();
                     welcomePanelToCloseOnCreate = undefined;
                 }
-                // Show after install messages so it's visible
+                // Show workspace-ready webview
                 await new Promise((r) => setTimeout(r, 500));
-                vscode.window.showInformationMessage('Zendoc workspace ready! A new window should have opened—check for it.', 'Open Zendoc').then((sel) => {
-                    if (sel === 'Open Zendoc') {
-                        openWorkspaceInZendocProfile(workspacePath);
-                    }
-                });
+                showWorkspaceReadyPanel(workspacePath);
             }
             catch (error) {
                 const msg = error instanceof Error ? error.message : String(error);
