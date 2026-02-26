@@ -307,20 +307,22 @@ function getGitHubSetupHtml(version: string): string {
     <button id="connect">Connect</button>
     <button id="skip-btn-connect" style="margin-top:12px;margin-left:8px;background:transparent;border:1px solid var(--vscode-button-border)">Skip for now</button>
   </div>
-  <div id="success-step" style="display:none">
+  <div id="success-backup-step" style="display:none">
     <h2>Connected to GitHub</h2>
     <p id="success-msg" class="success"></p>
     <p style="margin-top:16px;font-size:13px;color:var(--vscode-descriptionForeground)">
       One more step: enable automatic backup so your changes are committed as you write.
     </p>
     <button id="enable-backup" style="margin-top:12px">Enable Automatic Backup</button>
-    <div id="sharing-section" style="margin-top:24px;padding-top:16px;border-top:1px solid var(--vscode-widget-border)">
-      <p style="font-size:13px;color:var(--vscode-descriptionForeground)">
-        Optional: share files via links. Grant Zendoc read-only access for private file sharing.
-      </p>
-      <p id="sharing-status" style="font-size:12px;margin-top:8px;min-height:20px"></p>
-      <button id="grant-sharing" style="margin-top:8px">Grant Zendoc sharing access</button>
-    </div>
+  </div>
+  <div id="sharing-step" style="display:none">
+    <h2>Backup enabled</h2>
+    <p style="font-size:13px;color:var(--vscode-descriptionForeground);margin-bottom:16px">
+      Optional: share files via links. Grant Zendoc read-only access for private file sharing.
+    </p>
+    <p id="sharing-status" style="font-size:12px;margin-top:8px;min-height:20px"></p>
+    <button id="grant-sharing" style="margin-top:8px">Grant Zendoc sharing access</button>
+    <button id="skip-sharing" style="margin-top:12px;margin-left:8px;background:transparent;border:1px solid var(--vscode-button-border)">Skip for now</button>
   </div>
   <script>
     const vscode = acquireVsCodeApi();
@@ -358,9 +360,13 @@ function getGitHubSetupHtml(version: string): string {
         sharingStatus.textContent = 'Sharing is enabled.';
         sharingStatus.className = 'success';
         grantBtn.textContent = 'Check again';
+        grantBtn.style.display = 'none';
+        document.getElementById('skip-sharing').textContent = 'Done';
       } else if (type === 'sharingInstructions') {
         sharingStatus.textContent = message || 'Add ZendocBot as a collaborator with Read access, then click Check again.';
         sharingStatus.className = '';
+        grantBtn.textContent = 'Check again';
+        grantBtn.style.display = '';
       }
     });
     document.getElementById('open-github').onclick = (e) => {
@@ -391,6 +397,9 @@ function getGitHubSetupHtml(version: string): string {
     };
     document.getElementById('grant-sharing').onclick = () => {
       vscode.postMessage({ type: 'grantSharing' });
+    };
+    document.getElementById('skip-sharing').onclick = () => {
+      vscode.postMessage({ type: 'doneSharing' });
     };
     document.getElementById('install-btn').onclick = () => {
       vscode.postMessage({ type: 'installTools' });
@@ -490,7 +499,17 @@ async function runGitHubConnect(targetPath: string, repoUrl: string): Promise<vo
 
   try {
     await runCommand(`git remote set-url origin '${authUrl.replace(/'/g, "'\\''")}'`, targetPath);
-    await runCommand('git push -u origin main', targetPath);
+    try {
+      await runCommand('git push -u origin main', targetPath);
+    } catch (pushErr) {
+      const msg = String(pushErr);
+      if (/rejected|conflicting|diverged/i.test(msg)) {
+        await runCommand('git pull --rebase origin main', targetPath);
+        await runCommand('git push -u origin main', targetPath);
+      } else {
+        throw pushErr;
+      }
+    }
   } finally {
     await runCommand(`git remote set-url origin '${cleanUrl}'`, targetPath);
   }
@@ -535,11 +554,13 @@ function showGitHubSetupPanel(context: vscode.ExtensionContext, targetPath: stri
       try {
         await vscode.commands.executeCommand('gitdoc.enable');
         vscode.window.showInformationMessage('Automatic backup enabled.');
-        setTimeout(() => panel.dispose(), 1500);
+        panel.webview.postMessage({ type: 'showSharingStep' });
       } catch (e) {
         log(`GitDoc enable failed: ${e}`);
         vscode.window.showErrorMessage('Could not enable GitDoc. Run "GitDoc: Enable" from the Command Palette.');
       }
+    } else if (message.type === 'doneSharing') {
+      panel.dispose();
     } else if (message.type === 'installTools') {
       runXcodeSelectInstall();
       panel.webview.postMessage({ type: 'installTriggered' });
