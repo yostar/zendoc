@@ -214,17 +214,15 @@ function getGitHubSetupHtml() {
 <body>
   <div id="install-step">
     <h2>One more thing</h2>
-    <p id="checking-msg" style="color:var(--vscode-descriptionForeground)">Checking...</p>
-    <div id="install-prompt" style="display:none">
-      <p style="color:var(--vscode-descriptionForeground)">
-        Before connecting to GitHub, we need to install a small tool on your computer.
-      </p>
-      <p id="install-wait-msg" style="display:none;margin-top:12px;font-size:13px;color:var(--vscode-descriptionForeground)">
-        A window should have opened. Click Install in that window, wait for it to finish, then click Try again below.
-      </p>
-      <button id="install-btn" style="margin-top:12px">Install</button>
-      <button id="try-again-btn" style="margin-top:12px;margin-left:8px;display:none">Try again</button>
-    </div>
+    <p style="color:var(--vscode-descriptionForeground)">
+      Before connecting to GitHub, we need to install a small tool on your computer. (On Mac, this is called "Command Line Tools.")
+    </p>
+    <p id="install-wait-msg" style="display:none;margin-top:12px;font-size:13px;color:var(--vscode-descriptionForeground)">
+      A window should have opened. Click Install in that window, wait for it to finish, then click Continue below.
+    </p>
+    <p id="install-error-msg" style="display:none;margin-top:8px;font-size:13px;color:var(--vscode-errorForeground)"></p>
+    <button id="install-btn" style="margin-top:12px">Install</button>
+    <button id="continue-btn" style="margin-top:12px;margin-left:8px">Continue</button>
   </div>
   <div id="connect-step" style="display:none">
     <h2>Connect to GitHub</h2>
@@ -327,7 +325,7 @@ function getGitHubSetupHtml() {
     document.getElementById('install-btn').onclick = () => {
       vscode.postMessage({ type: 'installTools' });
     };
-    document.getElementById('try-again-btn').onclick = () => {
+    document.getElementById('continue-btn').onclick = () => {
       vscode.postMessage({ type: 'checkGitAgain' });
     };
   </script>
@@ -410,11 +408,14 @@ function showGitHubSetupPanel(context, targetPath) {
         else if (message.type === 'installTools') {
             runXcodeSelectInstall();
             panel.webview.postMessage({ type: 'installTriggered' });
-            vscode.window.showInformationMessage('A window should open. Click Install, wait for it to finish, then click Try again in the panel.');
+            vscode.window.showInformationMessage('A window should open. Click Install, wait for it to finish, then click Continue in the panel.');
         }
         else if (message.type === 'checkGitAgain') {
             const ok = await checkGitAvailable();
-            panel.webview.postMessage({ type: ok ? 'showConnectStep' : 'showInstallStep' });
+            panel.webview.postMessage({
+                type: ok ? 'showConnectStep' : 'showInstallStep',
+                message: ok ? undefined : 'Install the tool first, then click Continue.',
+            });
         }
         else if (message.type === 'openGitHub') {
             vscode.env.openExternal(vscode.Uri.parse('https://github.com/new'));
