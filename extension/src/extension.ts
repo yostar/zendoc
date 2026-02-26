@@ -557,7 +557,7 @@ function showGitHubSetupPanel(context: vscode.ExtensionContext, targetPath: stri
       try {
         await vscode.commands.executeCommand('gitdoc.enable');
         vscode.window.showInformationMessage('Automatic backup enabled.');
-        panel.webview.postMessage({ type: 'showSharingStep' });
+        panel.dispose();
       } catch (e) {
         log(`GitDoc enable failed: ${e}`);
         vscode.window.showErrorMessage('Could not enable GitDoc. Run "GitDoc: Enable" from the Command Palette.');
