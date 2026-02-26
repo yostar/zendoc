@@ -51,7 +51,7 @@ When a user adds `ZendocBot` as collaborator, GitHub creates an **invitation** t
 ### Revocation
 
 - User removes share → key deleted from DB → URL 404
-- User disables sharing for repo → remove Zendoc bot from repo → service can no longer fetch; existing keys would fail (or we prune them)
+- User disables sharing for repo → remove ZendocBot from repo → service can no longer fetch; existing keys would fail (or we prune them)
 
 ---
 
@@ -61,7 +61,7 @@ When a user adds `ZendocBot` as collaborator, GitHub creates an **invitation** t
 |-----------------|---------|
 | `shares` | `id`, `repo_full_name`, `file_path`, `share_key`, `user_id`, `created_at` |
 | `share_key` | Unique, unguessable (e.g. UUID or nanoid) |
-| `repo_access` | Track which repos have Zendoc bot as collaborator (for cleanup/validation) |
+| `repo_access` | Track which repos have ZendocBot as collaborator (for cleanup/validation) |
 
 ---
 
@@ -71,7 +71,7 @@ When a user adds `ZendocBot` as collaborator, GitHub creates an **invitation** t
 2. **Share a file**: Right-click file → "Share" → extension calls service API → service creates share, returns URL → user copies link.
 3. **View shared file**: Recipient opens URL → service fetches file from GitHub, renders Markdown → displays.
 4. **Revoke**: User removes share (UI in extension or web) → key deleted → URL stops working.
-5. **Disable sharing**: Remove Zendoc bot from repo → all shares for that repo invalidated.
+5. **Disable sharing**: Remove ZendocBot from repo → all shares for that repo invalidated.
 
 ---
 
@@ -80,7 +80,7 @@ When a user adds `ZendocBot` as collaborator, GitHub creates an **invitation** t
 - Repo remains private
 - Only files the user explicitly shares are accessible via the key
 - Keys are unguessable; no listing of shares
-- Zendoc bot has read-only access—cannot push or modify
+- ZendocBot has read-only access—cannot push or modify
 
 ---
 
@@ -93,10 +93,20 @@ When a user adds `ZendocBot` as collaborator, GitHub creates an **invitation** t
 
 ---
 
+## Infrastructure
+
+**Platform: Vercel + Neon Postgres**
+
+- **Vercel:** Next.js app at `app.zendoc.org` — API routes + share viewer UI (full React/Next.js for rich markdown display)
+- **Neon:** Postgres database (free tier: 512MB, 190 compute hours/month)
+- **Domain:** `app.zendoc.org` on Vercel; main site stays on GitHub Pages at `zendoc.org`
+
+---
+
 ## Implementation Phases
 
 1. **Opt-in flow (extension)** — Done: "Grant Zendoc sharing access" in GitHub setup panel; checks collaborator status without `gh`; opens settings page with instructions
 2. **Invitation acceptance (service)** — TODO: Periodic job to auto-accept bot invitations; optional on-demand API
-3. **Service MVP:** API to create/delete shares, endpoint to serve file by key
+3. **Service MVP:** Next.js on Vercel — API routes for create/delete shares; `/s/[key]` page fetches from GitHub, renders Markdown; Neon for `shares` table
 4. **Extension:** "Share file" command → call API, copy URL
 5. **Web UI (optional):** Manage shares at zendoc.org/dashboard
