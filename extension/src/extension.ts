@@ -630,20 +630,32 @@ export function activate(context: vscode.ExtensionContext) {
         // 1. Open workspace FIRST—creates Zendoc profile so install-extension can target it
         openWorkspaceInZendocProfile(workspacePath);
 
-        // 2. Brief delay so profile is fully created, then install extensions
-        await new Promise((resolve) => setTimeout(resolve, 1500));
+        // 2. Wait for profile to exist, then install extensions (profile is created when the new window starts)
         const cliPath = getCliPath();
-        for (const extId of REQUIRED_EXTENSIONS) {
-          try {
-            await runCommand(`"${cliPath}" --install-extension ${extId} --profile "${ZENDOC_PROFILE}"`);
-            log(`Installed for ${ZENDOC_PROFILE}: ${extId}`);
-          } catch (err) {
-            log(`Failed to install ${extId}: ${err}`);
-            vscode.window.showWarningMessage(
-              `Could not install ${extId}. Install recommended extensions in the Zendoc window when prompted.`,
-              'OK'
-            );
+        const maxAttempts = 5;
+        const retryDelayMs = 2500;
+        for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+          await new Promise((r) => setTimeout(r, attempt === 1 ? 3500 : retryDelayMs));
+          let allOk = true;
+          for (const extId of REQUIRED_EXTENSIONS) {
+            try {
+              await runCommand(`"${cliPath}" --install-extension ${extId} --profile "${ZENDOC_PROFILE}"`);
+              log(`Installed for ${ZENDOC_PROFILE}: ${extId}`);
+            } catch (err) {
+              const msg = String(err);
+              if (/profile.*not found|Profile.*not found/i.test(msg) && attempt < maxAttempts) {
+                log(`Profile not ready (attempt ${attempt}/${maxAttempts}), retrying...`);
+                allOk = false;
+                break;
+              }
+              log(`Failed to install ${extId}: ${err}`);
+              vscode.window.showWarningMessage(
+                `Could not install ${extId}. Install recommended extensions in the Zendoc window when prompted.`,
+                'OK'
+              );
+            }
           }
+          if (allOk) break;
         }
 
         if (welcomePanelToCloseOnCreate) {
