@@ -434,28 +434,28 @@ async function isZendocBotCollaborator(owner, repo, token) {
         return false;
     }
 }
+function isGitAuthError(err) {
+    const msg = String(err);
+    return /could not read Username|Device not configured|Authentication failed|Permission denied/i.test(msg);
+}
 async function ensureGitHubAuth() {
     try {
         await runCommand('gh auth status');
         return;
     }
     catch {
-        // Not logged in — run gh auth login (opens browser)
+        // Not logged in — run gh auth login (opens browser) if gh is available
+    }
+    try {
+        await runCommand('gh --version');
+    }
+    catch {
+        throw new Error('GitHub CLI (gh) is not installed. Install it: brew install gh. Then run "gh auth login" in a terminal, or use a Personal Access Token at github.com/settings/tokens.');
     }
     vscode.window.showInformationMessage('A browser will open to log in to GitHub. Complete the login to continue.', { modal: false });
-    try {
-        await runCommand('gh auth login --web --git-protocol https');
-    }
-    catch (e) {
-        const msg = String(e);
-        if (/command not found|not recognized|ENOENT/i.test(msg)) {
-            throw new Error('GitHub CLI (gh) is not installed. Install it: brew install gh. Then run "gh auth login" in a terminal, or use a Personal Access Token at github.com/settings/tokens.');
-        }
-        throw e;
-    }
+    await runCommand('gh auth login --web --git-protocol https');
 }
 async function runGitHubConnect(targetPath, repoUrl) {
-    await ensureGitHubAuth();
     const gitDir = path.join(targetPath, '.git');
     if (!fs.existsSync(gitDir)) {
         await runCommand('git init', targetPath);
@@ -470,7 +470,18 @@ async function runGitHubConnect(targetPath, repoUrl) {
         await runCommand('git commit -m "Initial commit"', targetPath);
     }
     await runCommand('git branch -M main', targetPath);
-    await runCommand('git push -u origin main', targetPath);
+    try {
+        await runCommand('git push -u origin main', targetPath);
+    }
+    catch (pushErr) {
+        if (isGitAuthError(pushErr)) {
+            await ensureGitHubAuth();
+            await runCommand('git push -u origin main', targetPath);
+        }
+        else {
+            throw pushErr;
+        }
+    }
 }
 async function openWelcomeMd(workspacePath) {
     const welcomePath = vscode.Uri.joinPath(vscode.Uri.file(workspacePath), 'Welcome.md');
