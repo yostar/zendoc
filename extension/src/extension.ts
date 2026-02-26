@@ -632,17 +632,37 @@ export function activate(context: vscode.ExtensionContext) {
 
         // 2. Brief delay so profile is created when the new window starts, then install extensions
         const cliPath = getCliPath();
+        const zendocExtId = 'YMSDynamics.yms-zendoc';
+        const version = context.extension.packageJSON?.version || '0.1.11';
+        const installZendocFromVsix = async (): Promise<boolean> => {
+          const candidates = [
+            path.join(context.extensionPath, `yms-zendoc-${version}.vsix`),
+            path.join(context.extensionPath, '..', `yms-zendoc-${version}.vsix`),
+          ];
+          const cachedDir = path.join(os.homedir(), 'Library', 'Application Support', 'Cursor', 'CachedExtensionVSIXs');
+          if (fs.existsSync(cachedDir)) {
+            const entries = fs.readdirSync(cachedDir);
+            const zendocVsix = entries.find((e) => e.toLowerCase().includes('zendoc') && e.endsWith('.vsix'));
+            if (zendocVsix) candidates.push(path.join(cachedDir, zendocVsix));
+          }
+          for (const vsix of candidates) {
+            if (fs.existsSync(vsix)) {
+              try {
+                await runCommand(`"${cliPath}" --install-extension "${vsix}" --profile "${ZENDOC_PROFILE}"`);
+                log(`Installed for ${ZENDOC_PROFILE}: Zendoc (from .vsix)`);
+                return true;
+              } catch (_) {}
+            }
+          }
+          return false;
+        };
         const installExts = async () => {
-          // Install Zendoc from extension path first (preserves user's .vsix version); fallback to marketplace
-          const zendocExtId = 'YMSDynamics.yms-zendoc';
-          try {
-            const extPath = context.extensionPath.replace(/\\/g, '/');
-            await runCommand(`"${cliPath}" --install-extension "${extPath}" --profile "${ZENDOC_PROFILE}"`);
-            log(`Installed for ${ZENDOC_PROFILE}: Zendoc (from path)`);
-          } catch (_) {
+          // Install Zendoc: try .vsix in extension parent (from dev), else marketplace
+          const fromVsix = await installZendocFromVsix();
+          if (!fromVsix) {
             try {
               await runCommand(`"${cliPath}" --install-extension ${zendocExtId} --profile "${ZENDOC_PROFILE}"`);
-              log(`Installed for ${ZENDOC_PROFILE}: ${zendocExtId}`);
+              log(`Installed for ${ZENDOC_PROFILE}: ${zendocExtId} (marketplace)`);
             } catch (err) {
               const msg = String(err);
               if (/profile.*not found/i.test(msg)) throw err;

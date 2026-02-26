@@ -289,7 +289,7 @@ function getGitHubSetupHtml(version) {
     <input type="text" id="repo-url" placeholder="https://github.com/username/repo-name.git" />
     <div id="message"></div>
     <button id="connect">Connect</button>
-    <button id="maybe-later-btn-connect" style="margin-top:12px;margin-left:8px;background:transparent;border:1px solid var(--vscode-button-border)">Maybe later</button>
+    <button id="skip-btn-connect" style="margin-top:12px;margin-left:8px;background:transparent;border:1px solid var(--vscode-button-border)">Skip for now</button>
   </div>
   <div id="success-step" style="display:none">
     <h2>Connected to GitHub</h2>
@@ -607,8 +607,51 @@ function activate(context) {
                 openWorkspaceInZendocProfile(workspacePath);
                 // 2. Brief delay so profile is created when the new window starts, then install extensions
                 const cliPath = getCliPath();
+                const zendocExtId = 'YMSDynamics.yms-zendoc';
+                const version = context.extension.packageJSON?.version || '0.1.11';
+                const installZendocFromVsix = async () => {
+                    const candidates = [
+                        path.join(context.extensionPath, `yms-zendoc-${version}.vsix`),
+                        path.join(context.extensionPath, '..', `yms-zendoc-${version}.vsix`),
+                    ];
+                    const cachedDir = path.join(os.homedir(), 'Library', 'Application Support', 'Cursor', 'CachedExtensionVSIXs');
+                    if (fs.existsSync(cachedDir)) {
+                        const entries = fs.readdirSync(cachedDir);
+                        const zendocVsix = entries.find((e) => e.toLowerCase().includes('zendoc') && e.endsWith('.vsix'));
+                        if (zendocVsix)
+                            candidates.push(path.join(cachedDir, zendocVsix));
+                    }
+                    for (const vsix of candidates) {
+                        if (fs.existsSync(vsix)) {
+                            try {
+                                await runCommand(`"${cliPath}" --install-extension "${vsix}" --profile "${ZENDOC_PROFILE}"`);
+                                log(`Installed for ${ZENDOC_PROFILE}: Zendoc (from .vsix)`);
+                                return true;
+                            }
+                            catch (_) { }
+                        }
+                    }
+                    return false;
+                };
                 const installExts = async () => {
+                    // Install Zendoc: try .vsix in extension parent (from dev), else marketplace
+                    const fromVsix = await installZendocFromVsix();
+                    if (!fromVsix) {
+                        try {
+                            await runCommand(`"${cliPath}" --install-extension ${zendocExtId} --profile "${ZENDOC_PROFILE}"`);
+                            log(`Installed for ${ZENDOC_PROFILE}: ${zendocExtId} (marketplace)`);
+                        }
+                        catch (err) {
+                            const msg = String(err);
+                            if (/profile.*not found/i.test(msg))
+                                throw err;
+                            log(`Failed to install Zendoc: ${err}`);
+                            vscode.window.showWarningMessage('Could not install Zendoc in Zendoc profile. Install from .vsix manually.', 'OK');
+                        }
+                    }
                     for (const extId of REQUIRED_EXTENSIONS) {
+                        if (extId === zendocExtId)
+                            continue;
                         try {
                             await runCommand(`"${cliPath}" --install-extension ${extId} --profile "${ZENDOC_PROFILE}"`);
                             log(`Installed for ${ZENDOC_PROFILE}: ${extId}`);
