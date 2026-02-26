@@ -10,6 +10,7 @@ const child_process_1 = require("child_process");
 const util_1 = require("util");
 const execAsync = (0, util_1.promisify)(child_process_1.exec);
 const ZENDOC_PROFILE = 'Zendoc';
+const ZENDOC_BOT_USERNAME = 'zendoc-bot';
 const REQUIRED_EXTENSIONS = [
     'vsls-contrib.gitdoc',
     'yzhang.markdown-all-in-one',
@@ -191,6 +192,13 @@ function getGitHubSetupHtml() {
       One more step: enable automatic backup so your changes are committed as you write.
     </p>
     <button id="enable-backup" style="margin-top:12px">Enable Automatic Backup</button>
+    <div id="sharing-section" style="margin-top:24px;padding-top:16px;border-top:1px solid var(--vscode-widget-border)">
+      <p style="font-size:13px;color:var(--vscode-descriptionForeground)">
+        Optional: share files via links. Grant Zendoc read-only access for private file sharing.
+      </p>
+      <p id="sharing-status" style="font-size:12px;margin-top:8px;min-height:20px"></p>
+      <button id="grant-sharing" style="margin-top:8px">Grant Zendoc sharing access</button>
+    </div>
   </div>
   <script>
     const vscode = acquireVsCodeApi();
@@ -198,6 +206,8 @@ function getGitHubSetupHtml() {
       const { type, message } = event.data;
       const msgEl = document.getElementById('message');
       const btn = document.getElementById('connect');
+      const sharingStatus = document.getElementById('sharing-status');
+      const grantBtn = document.getElementById('grant-sharing');
       if (type === 'success') {
         document.getElementById('connect-step').style.display = 'none';
         document.getElementById('success-step').style.display = 'block';
@@ -206,6 +216,13 @@ function getGitHubSetupHtml() {
         msgEl.textContent = message;
         msgEl.className = 'error';
         btn.disabled = false;
+      } else if (type === 'sharingGranted') {
+        sharingStatus.textContent = 'Sharing is enabled.';
+        sharingStatus.className = 'success';
+        grantBtn.textContent = 'Check again';
+      } else if (type === 'sharingInstructions') {
+        sharingStatus.textContent = message || 'Add zendoc-bot as a collaborator with Read access, then click Check again.';
+        sharingStatus.className = '';
       }
     });
     document.getElementById('open-github').onclick = (e) => {
@@ -234,6 +251,9 @@ function getGitHubSetupHtml() {
     document.getElementById('enable-backup').onclick = () => {
       vscode.postMessage({ type: 'enableBackup' });
     };
+    document.getElementById('grant-sharing').onclick = () => {
+      vscode.postMessage({ type: 'grantSharing' });
+    };
   </script>
 </body>
 </html>`;
@@ -242,6 +262,38 @@ async function hasRemoteOrigin(workspacePath) {
     try {
         await execAsync('git remote get-url origin', { cwd: workspacePath });
         return true;
+    }
+    catch {
+        return false;
+    }
+}
+function parseRepoFromRemote(url) {
+    const match = url.match(/github\.com[/:]([\w.-]+)\/([\w.-]+?)(?:\.git)?$/);
+    return match ? { owner: match[1], repo: match[2] } : null;
+}
+async function getGitHubToken() {
+    return new Promise((resolve) => {
+        const proc = (0, child_process_1.spawn)('git', ['credential', 'fill'], {
+            env: { ...process.env, GIT_TERMINAL_PROMPT: '0' },
+            stdio: ['pipe', 'pipe', 'pipe'],
+        });
+        proc.stdin.write('protocol=https\nhost=github.com\n');
+        proc.stdin.end();
+        let data = '';
+        proc.stdout.on('data', (chunk) => { data += chunk.toString(); });
+        proc.stdout.on('end', () => {
+            const m = data.match(/password=(.+)/m);
+            resolve(m ? m[1].trim() : null);
+        });
+        proc.on('error', () => resolve(null));
+    });
+}
+async function isZendocBotCollaborator(owner, repo, token) {
+    try {
+        const res = await fetch(`https://api.github.com/repos/${owner}/${repo}/collaborators/${ZENDOC_BOT_USERNAME}`, {
+            headers: { Authorization: `token ${token}` },
+        });
+        return res.status === 204;
     }
     catch {
         return false;
@@ -294,6 +346,34 @@ function showGitHubSetupPanel(context, targetPath) {
                     ? 'A remote named "origin" already exists. Remove it first.'
                     : `Failed: ${msg}. When you push, use a Personal Access Token (github.com/settings/tokens).`;
                 panel.webview.postMessage({ type: 'error', message: userMsg });
+            }
+        }
+        else if (message.type === 'grantSharing') {
+            try {
+                const urlOut = await execAsync('git remote get-url origin', { cwd: targetPath });
+                const repo = parseRepoFromRemote((urlOut.stdout || '').trim());
+                if (!repo) {
+                    panel.webview.postMessage({ type: 'sharingInstructions', message: 'Could not detect repo. Add zendoc-bot as a collaborator with Read access.' });
+                    return;
+                }
+                const token = await getGitHubToken();
+                if (!token) {
+                    panel.webview.postMessage({ type: 'sharingInstructions', message: 'Could not get GitHub token. Add zendoc-bot as a collaborator with Read access.' });
+                    vscode.env.openExternal(vscode.Uri.parse(`https://github.com/${repo.owner}/${repo.repo}/settings/access`));
+                    return;
+                }
+                const isCollaborator = await isZendocBotCollaborator(repo.owner, repo.repo, token);
+                if (isCollaborator) {
+                    panel.webview.postMessage({ type: 'sharingGranted' });
+                }
+                else {
+                    panel.webview.postMessage({ type: 'sharingInstructions', message: 'Add zendoc-bot as a collaborator with Read access, then click Check again.' });
+                    vscode.env.openExternal(vscode.Uri.parse(`https://github.com/${repo.owner}/${repo.repo}/settings/access`));
+                }
+            }
+            catch (e) {
+                log(`grantSharing failed: ${e}`);
+                panel.webview.postMessage({ type: 'sharingInstructions', message: 'Could not check. Add zendoc-bot as a collaborator with Read access.' });
             }
         }
     });
