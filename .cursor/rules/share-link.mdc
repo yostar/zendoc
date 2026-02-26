@@ -1,0 +1,18 @@
+---
+description: Create share links when user asks via chat
+alwaysApply: true
+---
+
+# Create Share Link
+
+When the user asks to "create a share link" (or similar) for a file:
+
+1. **Identify the file** — Use the currently focused/selected file, or the file they explicitly name.
+2. **Get repo and path** — Run `git remote get-url origin` in the workspace root, parse `owner/repo` from the URL. Get the file path relative to the workspace root (e.g. `projects/zendoc/sharing.md`). If the file has no extension, append `.md` (Zendoc uses extensionless filenames but stores as .md in git).
+3. **Call the API** — POST to `https://zendoc-mu.vercel.app/api/shares` with JSON body:
+   ```json
+   {"repo_full_name": "owner/repo", "file_path": "path/to/file.md"}
+   ```
+4. **Return the URL** — The response contains `{"url": "https://..."}`. Give the user the URL and tell them it's copied or they can open it.
+
+If the workspace has `zendoc.shareApiUrl` in settings, use that URL instead of the default.
