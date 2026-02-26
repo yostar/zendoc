@@ -295,7 +295,8 @@ function getGitHubSetupHtml(version: string): string {
     <button id="skip-btn" style="margin-top:12px;margin-left:8px;background:transparent;border:1px solid var(--vscode-button-border)">Skip for now</button>
   </div>
   <div id="connect-step" style="display:none">
-    <h2>Setup GitHub Backup</h2>
+    <h2>Set up GitHub backup</h2>
+    <p style="font-size:13px;color:var(--vscode-descriptionForeground);margin-bottom:12px">First time? A browser will open to log in to GitHub when you click Connect.</p>
     <ol>
       <li>Create an empty repo at <a href="#" id="open-github">github.com/new</a> (no README, .gitignore, or license)</li>
       <li>Copy the repo URL from the page</li>
@@ -451,7 +452,33 @@ async function isZendocBotCollaborator(owner: string, repo: string, token: strin
   }
 }
 
+async function ensureGitHubAuth(): Promise<void> {
+  try {
+    await runCommand('gh auth status');
+    return;
+  } catch {
+    // Not logged in — run gh auth login (opens browser)
+  }
+  vscode.window.showInformationMessage(
+    'A browser will open to log in to GitHub. Complete the login to continue.',
+    { modal: false }
+  );
+  try {
+    await runCommand('gh auth login --web --git-protocol https');
+  } catch (e) {
+    const msg = String(e);
+    if (/command not found|not recognized|ENOENT/i.test(msg)) {
+      throw new Error(
+        'GitHub CLI (gh) is not installed. Install it: brew install gh. Then run "gh auth login" in a terminal, or use a Personal Access Token at github.com/settings/tokens.'
+      );
+    }
+    throw e;
+  }
+}
+
 async function runGitHubConnect(targetPath: string, repoUrl: string): Promise<void> {
+  await ensureGitHubAuth();
+
   const gitDir = path.join(targetPath, '.git');
   if (!fs.existsSync(gitDir)) {
     await runCommand('git init', targetPath);
