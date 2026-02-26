@@ -826,7 +826,7 @@ function activate(context) {
                     body: JSON.stringify({ repo_full_name: repoFullName, file_path: filePath }),
                 });
                 if (!res.ok) {
-                    const err = await res.json().catch(() => ({}));
+                    const err = (await res.json().catch(() => ({})));
                     vscode.window.showErrorMessage(err.error || `Failed to create share: ${res.status}`);
                     return;
                 }

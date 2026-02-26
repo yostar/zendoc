@@ -1,6 +1,10 @@
 import { neon } from '@neondatabase/serverless';
 
-const sql = neon(process.env.DATABASE_URL!);
+function getSql() {
+  const url = process.env.DATABASE_URL;
+  if (!url) throw new Error('DATABASE_URL is not set');
+  return neon(url);
+}
 
 export interface Share {
   id: number;
@@ -11,6 +15,7 @@ export interface Share {
 }
 
 export async function createShare(repoFullName: string, filePath: string, shareKey: string): Promise<Share> {
+  const sql = getSql();
   const rows = await sql`
     INSERT INTO shares (share_key, repo_full_name, file_path)
     VALUES (${shareKey}, ${repoFullName}, ${filePath})
@@ -20,6 +25,7 @@ export async function createShare(repoFullName: string, filePath: string, shareK
 }
 
 export async function getShareByKey(shareKey: string): Promise<Share | null> {
+  const sql = getSql();
   const rows = await sql`
     SELECT id, share_key, repo_full_name, file_path, created_at
     FROM shares
