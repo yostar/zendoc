@@ -779,6 +779,67 @@ function activate(context) {
         const showWelcome = vscode.commands.registerCommand('zendoc.showWelcome', () => {
             showWelcomePanel(context);
         });
+        const createShareLink = vscode.commands.registerCommand('zendoc.createShareLink', async (resource) => {
+            const folder = vscode.workspace.workspaceFolders?.[0];
+            if (!folder) {
+                vscode.window.showErrorMessage('Open a Zendoc workspace first.');
+                return;
+            }
+            const workspacePath = folder.uri.fsPath;
+            let fileUri;
+            if (resource?.scheme === 'file') {
+                fileUri = resource;
+            }
+            else {
+                const activeEditor = vscode.window.activeTextEditor;
+                if (!activeEditor) {
+                    vscode.window.showErrorMessage('Open a file or right-click a file in the Explorer.');
+                    return;
+                }
+                fileUri = activeEditor.document.uri;
+            }
+            if (fileUri.scheme !== 'file')
+                return;
+            let filePath = path.relative(workspacePath, fileUri.fsPath);
+            if (path.sep === '\\')
+                filePath = filePath.replace(/\\/g, '/');
+            if (!filePath || filePath.startsWith('..')) {
+                vscode.window.showErrorMessage('File must be inside the workspace.');
+                return;
+            }
+            if (path.extname(filePath) === '') {
+                filePath = filePath + '.md';
+            }
+            try {
+                const urlOut = await execAsync('git remote get-url origin', { cwd: workspacePath });
+                const repo = parseRepoFromRemote((urlOut.stdout || '').trim());
+                if (!repo) {
+                    vscode.window.showErrorMessage('Could not detect GitHub repo. Connect to GitHub first.');
+                    return;
+                }
+                const repoFullName = `${repo.owner}/${repo.repo}`;
+                const config = vscode.workspace.getConfiguration('zendoc');
+                const apiUrl = (config.get('shareApiUrl') || 'https://app.zendoc.org').replace(/\/$/, '');
+                const res = await fetch(`${apiUrl}/api/shares`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ repo_full_name: repoFullName, file_path: filePath }),
+                });
+                if (!res.ok) {
+                    const err = await res.json().catch(() => ({}));
+                    vscode.window.showErrorMessage(err.error || `Failed to create share: ${res.status}`);
+                    return;
+                }
+                const data = (await res.json());
+                await vscode.env.clipboard.writeText(data.url);
+                vscode.window.showInformationMessage(`Share link copied to clipboard: ${data.url}`);
+            }
+            catch (e) {
+                const msg = e instanceof Error ? e.message : String(e);
+                log(`createShareLink failed: ${msg}`);
+                vscode.window.showErrorMessage(`Failed to create share: ${msg}`);
+            }
+        });
         const setupBackup = vscode.commands.registerCommand('zendoc.setupBackup', async (workspacePath) => {
             const targetPath = workspacePath || vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
             if (!targetPath) {
@@ -791,7 +852,7 @@ function activate(context) {
             }
             showGitHubSetupPanel(context, targetPath);
         });
-        context.subscriptions.push(createWorkspace, showWelcome, setupBackup);
+        context.subscriptions.push(createWorkspace, showWelcome, setupBackup, createShareLink);
         // When in a Zendoc workspace, run commands to show Explorer and open Welcome.md
         applyZendocLayout(context);
         // File watcher: auto-add .md to extensionless files (Zendoc workspaces only, skip dotfiles)

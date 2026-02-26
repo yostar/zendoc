@@ -35,6 +35,10 @@
       {
         "command": "zendoc.setupBackup",
         "title": "Set up cloud backup (GitHub)"
+      },
+      {
+        "command": "zendoc.createShareLink",
+        "title": "Create share link for this file"
       }
     ],
     "keybindings": [
@@ -43,7 +47,26 @@
         "key": "ctrl+shift+z",
         "mac": "cmd+shift+z"
       }
-    ]
+    ],
+    "menus": {
+      "explorer/context": [
+        {
+          "command": "zendoc.createShareLink",
+          "when": "resourceScheme == file",
+          "group": "navigation"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Zendoc",
+      "properties": {
+        "zendoc.shareApiUrl": {
+          "type": "string",
+          "default": "https://app.zendoc.org",
+          "description": "Base URL for the Zendoc share service (e.g. your Vercel deployment)"
+        }
+      }
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
