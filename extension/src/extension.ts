@@ -619,7 +619,6 @@ export function activate(context: vscode.ExtensionContext) {
           log(`Using existing workspace at ${workspacePath}`);
         }
 
-        vscode.window.showInformationMessage('Creating workspace...');
         log('Copying template...');
 
         const templatePath = path.join(context.extensionPath, 'resources', 'template');
@@ -629,12 +628,10 @@ export function activate(context: vscode.ExtensionContext) {
         log('GitHub setup skipped');
 
         // 1. Open workspace FIRST—creates Zendoc profile so install-extension can target it
-        vscode.window.showInformationMessage('Opening workspace in Zendoc profile...');
         openWorkspaceInZendocProfile(workspacePath);
 
         // 2. Brief delay so profile is fully created, then install extensions
         await new Promise((resolve) => setTimeout(resolve, 1500));
-        vscode.window.showInformationMessage('Installing extensions...');
         const cliPath = getCliPath();
         for (const extId of REQUIRED_EXTENSIONS) {
           try {
