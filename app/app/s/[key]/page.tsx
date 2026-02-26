@@ -17,38 +17,32 @@ export default function SharePage({ params }: { params: Promise<{ key: string }>
     params.then((p) => setKey(p.key));
   }, [params]);
 
-  const fetchContent = async (showPolling = false) => {
+  useEffect(() => {
     if (!key) return;
-    if (showPolling) setPolling(true);
-    try {
-      const res = await fetch(`/api/shares/${key}/content`);
-      if (!res.ok) {
-        if (res.status === 404) {
-          setError('Share not found');
-        } else {
-          setError('Failed to load content');
+    const fetchContent = async (showPolling = false) => {
+      if (showPolling) setPolling(true);
+      try {
+        const res = await fetch(`/api/shares/${key}/content`);
+        if (!res.ok) {
+          if (res.status === 404) {
+            setError('Share not found');
+          } else {
+            setError('Failed to load content');
+          }
+          return;
         }
-        return;
+        const text = await res.text();
+        setContent(text);
+        setError(null);
+        setLastUpdated(new Date());
+      } catch {
+        setError('Failed to load content');
+      } finally {
+        setLoading(false);
+        setPolling(false);
       }
-      const text = await res.text();
-      setContent(text);
-      setError(null);
-      setLastUpdated(new Date());
-    } catch {
-      setError('Failed to load content');
-    } finally {
-      setLoading(false);
-      setPolling(false);
-    }
-  };
-
-  useEffect(() => {
-    if (!key) return;
+    };
     fetchContent();
-  }, [key]);
-
-  useEffect(() => {
-    if (!key) return;
     const interval = setInterval(() => fetchContent(true), POLL_INTERVAL_MS);
     return () => clearInterval(interval);
   }, [key]);
