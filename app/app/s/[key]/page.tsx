@@ -5,17 +5,13 @@ import ReactMarkdown from 'react-markdown';
 
 const POLL_INTERVAL_MS = 30000;
 
-export default function SharePage({ params }: { params: Promise<{ key: string }> }) {
-  const [key, setKey] = useState<string | null>(null);
+export default function SharePage({ params }: { params: { key: string } }) {
+  const key = params.key;
   const [content, setContent] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [polling, setPolling] = useState(false);
-
-  useEffect(() => {
-    params.then((p) => setKey(p.key));
-  }, [params]);
 
   useEffect(() => {
     if (!key) return;
@@ -46,8 +42,6 @@ export default function SharePage({ params }: { params: Promise<{ key: string }>
     const interval = setInterval(() => fetchContent(true), POLL_INTERVAL_MS);
     return () => clearInterval(interval);
   }, [key]);
-
-  if (!key) return null;
 
   if (loading && !content) {
     return (
