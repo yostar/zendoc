@@ -21,11 +21,9 @@ export default function SharePage({ params }: { params: { key: string } }) {
       try {
         const res = await fetch(`/api/shares/${key}/content`);
         if (!res.ok) {
-          if (res.status === 404) {
-            setError('Share not found');
-          } else {
-            setError('Failed to load content');
-          }
+          const errBody = await res.json().catch(() => ({}));
+          const errMsg = (errBody as { error?: string }).error;
+          setError(errMsg || (res.status === 404 ? 'Share not found' : 'Failed to load content'));
           return;
         }
         const text = await res.text();
