@@ -2,7 +2,7 @@
   "name": "yms-zendoc",
   "displayName": "Zendoc for Cursor",
   "description": "Distraction-free writing, powered by AI. Turns Cursor into a writing platform with auto-backup to GitHub.",
-  "version": "0.1.10",
+  "version": "0.1.11",
   "publisher": "YMSDynamics",
   "repository": {
     "type": "git",
@@ -48,7 +48,8 @@
   "scripts": {
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./"
+    "watch": "tsc -watch -p ./",
+    "package": "npm run compile && npx @vscode/vsce package"
   },
   "devDependencies": {
     "@types/node": "^20.10.0",

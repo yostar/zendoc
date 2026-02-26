@@ -1,16 +1,16 @@
 ---
 description: Zendoc extension build and packaging workflow
 globs: extension/**/*
-alwaysApply: false
+alwaysApply: true
 ---
 
 # Extension Build Workflow
 
-## Packaging (each time we make changes)
+## After making extension changes
 
-When making changes to the extension:
-- **Bump the version** in `package.json` (e.g. 0.1.8 → 0.1.9)
-- Run `npm run compile` in the extension folder
-- Run `vsce package` to produce the .vsix (e.g. `yms-zendoc-0.1.9.vsix`)
+**Always repackage** when you edit extension code. Do not skip this step.
 
-Bumping version each time avoids Cursor cache issues when testing on another machine.
+1. **Bump version** in `extension/package.json` (e.g. 0.1.10 → 0.1.11) — avoids cache issues when testing
+2. **Run** `cd extension && npm run package` — compiles and produces `yms-zendoc-X.X.X.vsix`
+
+The .vsix is in `extension/`. AirDrop or install it to test on another machine.

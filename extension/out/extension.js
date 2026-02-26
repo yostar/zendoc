@@ -266,7 +266,8 @@ function getGitHubSetupHtml(version) {
 <body>
   <p style="font-size:11px;color:var(--vscode-descriptionForeground);margin-bottom:16px">Zendoc v${version}</p>
   <div id="install-step">
-    <h2>One more thing</h2>
+    <h2>Set up GitHub backup</h2>
+    <p style="font-weight:600;margin-bottom:8px">One more thing</p>
     <p style="color:var(--vscode-descriptionForeground)">
       Before connecting to GitHub, we need to install a small tool on your computer. (On Mac, this is called "Command Line Tools.")
     </p>
@@ -276,7 +277,7 @@ function getGitHubSetupHtml(version) {
     <p id="install-error-msg" style="display:none;margin-top:8px;font-size:13px;color:var(--vscode-errorForeground)"></p>
     <button id="install-btn" style="margin-top:12px">Install</button>
     <button id="continue-btn" style="margin-top:12px;margin-left:8px">Continue</button>
-    <button id="maybe-later-btn" style="margin-top:12px;margin-left:8px;background:transparent;border:1px solid var(--vscode-button-border)">Maybe later</button>
+    <button id="skip-btn" style="margin-top:12px;margin-left:8px;background:transparent;border:1px solid var(--vscode-button-border)">Skip for now</button>
   </div>
   <div id="connect-step" style="display:none">
     <h2>Setup GitHub Backup</h2>
@@ -381,10 +382,10 @@ function getGitHubSetupHtml(version) {
     document.getElementById('continue-btn').onclick = () => {
       vscode.postMessage({ type: 'checkGitAgain' });
     };
-    document.getElementById('maybe-later-btn').onclick = () => {
+    document.getElementById('skip-btn').onclick = () => {
       vscode.postMessage({ type: 'maybeLater' });
     };
-    document.getElementById('maybe-later-btn-connect').onclick = () => {
+    document.getElementById('skip-btn-connect').onclick = () => {
       vscode.postMessage({ type: 'maybeLater' });
     };
   </script>
@@ -449,10 +450,31 @@ async function runGitHubConnect(targetPath, repoUrl) {
     await runCommand('git branch -M main', targetPath);
     await runCommand('git push -u origin main', targetPath);
 }
+async function openWelcomeMd(workspacePath) {
+    const welcomePath = vscode.Uri.joinPath(vscode.Uri.file(workspacePath), 'Welcome.md');
+    try {
+        await vscode.commands.executeCommand('markdownForHumans.openFile', welcomePath);
+    }
+    catch (_) {
+        const doc = await vscode.workspace.openTextDocument(welcomePath);
+        await vscode.window.showTextDocument(doc, { preview: false });
+    }
+}
 function showGitHubSetupPanel(context, targetPath) {
     const version = context.extension.packageJSON?.version || '0.1.8';
-    const panel = vscode.window.createWebviewPanel('zendoc.githubSetup', `Set up GitHub backup (v${version})`, vscode.ViewColumn.One, { enableScripts: true, retainContextWhenHidden: true });
+    const panel = vscode.window.createWebviewPanel('zendoc.githubSetup', 'Set up GitHub backup', vscode.ViewColumn.One, { enableScripts: true, retainContextWhenHidden: true });
     panel.webview.html = getGitHubSetupHtml(version);
+    // When panel closes (skip, success, or user closes), open Welcome.md
+    panel.onDidDispose(() => {
+        openWelcomeMd(targetPath);
+    });
+    // Check git on load and show install or connect step
+    checkGitAvailable().then((ok) => {
+        panel.webview.postMessage({
+            type: ok ? 'showConnectStep' : 'showInstallStep',
+            message: ok ? undefined : undefined,
+        });
+    });
     panel.webview.onDidReceiveMessage(async (message) => {
         if (message.type === 'enableBackup') {
             try {
@@ -542,43 +564,17 @@ function applyZendocLayout(context) {
     if (!folder)
         return;
     const welcomePath = vscode.Uri.joinPath(folder.uri, 'Welcome.md');
-    const gitignorePath = vscode.Uri.joinPath(folder.uri, '.gitignore');
     fs.access(welcomePath.fsPath, fs.constants.F_OK, (err) => {
         if (err)
             return; // Not a Zendoc workspace
-        // Delay so workspace is fully loaded
         setTimeout(async () => {
             try {
                 await vscode.commands.executeCommand('workbench.view.explorer');
-                try {
-                    await vscode.commands.executeCommand('markdownForHumans.openFile', welcomePath);
-                }
-                catch (_) {
-                    const doc = await vscode.workspace.openTextDocument(welcomePath);
-                    await vscode.window.showTextDocument(doc, { preview: false });
-                }
-                // Workaround: initial open shows plain markdown; switching away and back fixes it
-                await new Promise((resolve) => setTimeout(resolve, 300));
-                try {
-                    const otherDoc = await vscode.workspace.openTextDocument(gitignorePath);
-                    await vscode.window.showTextDocument(otherDoc, { preview: false });
-                    await new Promise((resolve) => setTimeout(resolve, 150));
-                    await vscode.commands.executeCommand('markdownForHumans.openFile', welcomePath);
-                    const gitignoreTab = vscode.window.tabGroups.all
-                        .flatMap((g) => g.tabs)
-                        .find((t) => t.input instanceof vscode.TabInputText && t.input.uri.fsPath === gitignorePath.fsPath);
-                    if (gitignoreTab) {
-                        await vscode.window.tabGroups.close(gitignoreTab);
-                    }
-                }
-                catch (_) {
-                    try {
-                        await vscode.commands.executeCommand('markdownForHumans.openFile', welcomePath);
-                    }
-                    catch (_) { }
-                }
                 if (!(await hasRemoteOrigin(folder.uri.fsPath))) {
                     showGitHubSetupPanel(context, folder.uri.fsPath);
+                }
+                else {
+                    await openWelcomeMd(folder.uri.fsPath);
                 }
             }
             catch (e) {
